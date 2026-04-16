@@ -132,16 +132,16 @@ class _LoginPageState extends State<LoginPage> {
                   bottomRight: Radius.circular(40),
                 ),
               ),
-              // child: Column(
-              //   children: [
-              //     Image.asset(
-              //       "images/branch.png",
-              //       height: 180,
-              //       fit: BoxFit.fill,
-              //       width: 240,
-              //     ),
-              //   ],
-              // ),
+              child: Column(
+                children: [
+                  Image.asset(
+                    "images/logo.png",
+                    height: 180,
+                    fit: BoxFit.fill,
+                    width: 240,
+                  ),
+                ],
+              ),
             ),
             Container(
               margin: EdgeInsets.only(
@@ -170,6 +170,10 @@ class _LoginPageState extends State<LoginPage> {
                           Center(
                             child: Text(
                               "Log In",
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -269,6 +273,11 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Center(
                                   child: Text(
                                     "Log In",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -294,7 +303,11 @@ class _LoginPageState extends State<LoginPage> {
                                 },
                                 child: Text(
                                   "SignUp",
-                                  //style: AppWidget.boldTextFieldStyle().copyWith(color: Colors.deepOrange),
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 16,
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                               )
                             ],

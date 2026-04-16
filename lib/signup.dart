@@ -85,7 +85,7 @@ class _SignUpPageState extends State<SignUpPage> {
         children: [
           // Top Black Section
           Container(
-            margin: const EdgeInsets.only(top: 30),
+            margin: const EdgeInsets.only(top: 10),
             height: MediaQuery.of(context).size.height / 3,
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
@@ -95,11 +95,16 @@ class _SignUpPageState extends State<SignUpPage> {
                 bottomRight: Radius.circular(40),
               ),
             ),
-            child: const Center(
-              child: Text(
-                "Join QuickClean",
-                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+            
+            child: Column(
+              children: [
+                Image.asset(
+                  "images/logo.png",
+                  height: 180,
+                  fit: BoxFit.fill,
+                  width: 240,
+                ),
+              ],
             ),
           ),
           

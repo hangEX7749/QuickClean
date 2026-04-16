@@ -38,12 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QuickClean'),
+        title: Text('QuickClean', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [IconButton(icon: Icon(Icons.notifications), onPressed: () {})],
       ),
       body: Padding(
