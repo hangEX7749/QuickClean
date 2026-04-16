@@ -1,9 +1,44 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key}); 
+  @override 
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+
+  List<dynamic> users = [];
+  bool isLoading = true;
+
+  @override 
+  void initState() { 
+    super.initState(); 
+  } 
+  
+  Future<void> _logout(BuildContext context) async {
+    try {
+      // 1. Sign out from Supabase
+      await Supabase.instance.client.auth.signOut();
+
+      // 2. Use rootNavigator to ensure we break out of any dialogs/overlays
+      if (!mounted) return; // Best practice: check if widget is still alive
+      
+      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+        '/', 
+        (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error logging out: $e")),
+      );
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,7 +47,7 @@ class HomeScreen extends StatelessWidget {
         actions: [IconButton(icon: Icon(Icons.notifications), onPressed: () {})],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -34,7 +69,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      ), 
       // Using BottomAppBar instead of BottomNavigationBar for custom layouts
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
@@ -45,23 +80,18 @@ class HomeScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Phone Call
-              IconButton(
-                icon: Icon(Icons.phone, color: Colors.blue),
-                onPressed: () => _launchURL('tel:+123456789'),
-              ),
+              _contactIcon(Icons.phone, "Call", Colors.blue, 
+                () => _launchURL('tel:+123456789')),
               
-              // WhatsApp
-              IconButton(
-                icon: Icon(Icons.chat_bubble_outline, color: Colors.green),
-                onPressed: () => _launchURL('https://wa.me/123456789'),
-              ),
+              _contactIcon(Icons.chat_bubble, "WhatsApp", Colors.green, 
+                () => _launchURL('https://wa.me/123456789')),
               
-              // Email
-              IconButton(
-                icon: Icon(Icons.email, color: Colors.redAccent),
-                onPressed: () => _launchURL('mailto:support@cleaningservice.com'),
-              ),
+              _contactIcon(Icons.email, "Email", Colors.redAccent, 
+                () => _launchURL('mailto:info@clean.com')),
+
+              // The Logout Button
+              _contactIcon(Icons.logout, "Logout", Colors.black, 
+                () => _showLogoutDialog(context)),
             ],
           ),
         ),
@@ -79,6 +109,44 @@ class HomeScreen extends StatelessWidget {
           Icon(icon, size: 40, color: color),
           SizedBox(height: 10),
           Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _contactIcon(IconData icon, String label, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color),
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (innerContext) => AlertDialog( // renamed to innerContext for clarity
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to leave?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(innerContext), 
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              // Close the dialog first using its specific context
+              Navigator.pop(innerContext);
+              // Then call logout using the main page context
+              _logout(context);
+            }, 
+            child: const Text("Logout", style: TextStyle(color: Colors.red))
+          ),
         ],
       ),
     );

@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:quick_clean/login.dart';
 import 'package:quick_clean/screen/home.dart';
+import 'package:quick_clean/signup.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://njlexgzeecgypzlxrcql.supabase.co',
+    anonKey: 'sb_publishable_82Zr-LMFlItEDzpiP0LaEw_6b6tEgy2',
+  );
+
+  //print('Supabase initialized: $initialize');
+
   runApp(const MyApp());
 }
 
@@ -17,7 +31,13 @@ class MyApp extends StatelessWidget {
         useMaterial3: true, // Gives you the modern Android 14+ look
         fontFamily: 'Poppins', // A clean, modern font for service apps
       ),
-      home: HomeScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/signup': (context) => const SignUpPage(),
+        '/member_home': (context) => const HomeScreen(),
+        //'/admin_home': (context) => const AdminHomeScreen(),
+      },
     );
   }
 }
