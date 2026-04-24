@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:quick_clean/admin_screen/add_admin.dart';
+import 'package:quick_clean/admin_screen/admin_list.dart';
+import 'package:quick_clean/admin_screen/booking_list.dart';
+import 'package:quick_clean/admin_screen/manage_service.dart';
+import 'package:quick_clean/admin_screen/member_list.dart';
+import 'package:quick_clean/admin_screen/service_provider.dart';
 
 class AdminHome extends StatelessWidget {
   const AdminHome({super.key});
@@ -7,10 +13,26 @@ class AdminHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<_AdminMenuItem> adminItems = [
       _AdminMenuItem(
-        title: "Manage Appointments",
-        icon: Icons.calendar_today,
+        title: "Manage Members",
+        icon: Icons.person,
         onTap: () {
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => AppointmentList()));
+          // Replace with your member management page
+          Navigator.push(context, MaterialPageRoute(builder: (_) => AdminMemberList()));
+        },
+      ),
+      _AdminMenuItem(
+        title: "Manage Service Providers",
+        icon: Icons.people,
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceProvider()));
+        },   // Replace with your service provider management page
+      ),
+      _AdminMenuItem(
+        title: "Manage Services",
+        icon: Icons.build,
+        onTap: () {
+          // Replace with your service management page
+          Navigator.push(context, MaterialPageRoute(builder: (_) => AdminServicePage()));
         },
       ),
       _AdminMenuItem(
@@ -18,38 +40,14 @@ class AdminHome extends StatelessWidget {
         icon: Icons.event_available,
         onTap: () {
           // Replace with your booking page
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => BookingList()));
-        },
-      ),
-      //Amennity
-      _AdminMenuItem(
-        title: "Manage Amenities",
-        icon: Icons.room_service,
-        onTap: () {
-          // Replace with your amenity management page
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => AmenityList()));
-        },
-      ),
-      _AdminMenuItem(
-        title: "Manage Members",
-        icon: Icons.person,
-        onTap: () {
-          // Replace with your member management page
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => MemberList()));
-        },
-      ),
-      _AdminMenuItem(
-        title: "Manage Member Groups",
-        icon: Icons.groups,
-        onTap: () {
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberGroupList()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => BookingList()));
         },
       ),
       _AdminMenuItem(
         title: "Add New Admin",
         icon: Icons.admin_panel_settings,
         onTap: () {
-          //Navigator.push(context, MaterialPageRoute(builder: (_) => const AddAdmin()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => AdminList()));
         },
       ),
     ];

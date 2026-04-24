@@ -178,7 +178,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           const SizedBox(height: 10),
                           Center(
                             child: Text(
-                              "Log In",
+                              "Admin Log In",
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
