@@ -1,16 +1,49 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:quick_clean/admin_screen/add_admin.dart';
 import 'package:quick_clean/admin_screen/admin_list.dart';
 import 'package:quick_clean/admin_screen/booking_list.dart';
 import 'package:quick_clean/admin_screen/manage_service.dart';
 import 'package:quick_clean/admin_screen/member_list.dart';
 import 'package:quick_clean/admin_screen/service_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AdminHome extends StatelessWidget {
+class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
 
   @override
+  State<AdminHome> createState() => _AdminHomeState();
+}
+
+class _AdminHomeState extends State<AdminHome> {
+
+  @override 
+  void initState() { 
+    super.initState(); 
+  } 
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      // 1. Sign out from Supabase
+      await Supabase.instance.client.auth.signOut();
+
+      // 2. Use rootNavigator to ensure we break out of any dialogs/overlays
+      if (!mounted) return; // Best practice: check if widget is still alive
+      
+      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+        '/', 
+        (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error logging out: $e")),
+      );
+    }
+  }
+  
+  @override
   Widget build(BuildContext context) {
+
     final List<_AdminMenuItem> adminItems = [
       _AdminMenuItem(
         title: "Manage Members",
@@ -54,7 +87,8 @@ class AdminHome extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Admin Panel"),
+        title: Text("Admin Panel", style: TextStyle(fontWeight: FontWeight.bold)),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -79,7 +113,7 @@ class AdminHome extends StatelessWidget {
               );
 
               if (confirm == true && context.mounted) {
-                //_logout(context);
+                await _logout(context);                
               }
             },
           ),

@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:quick_clean/admin_screen/add_admin.dart';
-import 'package:quick_clean/admin_screen/member_edit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminList extends StatefulWidget {
@@ -42,8 +40,6 @@ class _AdminListState extends State<AdminList> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching admins: $e")),
       );
-      
-        print(e.toString());
     }
   }
 

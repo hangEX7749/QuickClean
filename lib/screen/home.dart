@@ -1,8 +1,9 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print
 import 'package:flutter/material.dart';
+import 'package:quick_clean/models/service_models.dart';
+import 'package:quick_clean/models/service_provider_model.dart';
 import 'package:quick_clean/screen/booking.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:quick_clean/models/service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
 
@@ -14,54 +15,57 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  List<dynamic> users = [];
-  bool isLoading = true;
-
-  // Sample data for services and workers (Replace with real data from Supabase in production)
-  List<Service> services = [
-    Service('Cleaning', 'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
-    Service('Plumber', 'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-plumber-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
-    Service('Electrician', 'https://img.icons8.com/external-wanicon-flat-wanicon/2x/external-multimeter-car-service-wanicon-flat-wanicon.png'),
-    Service('Painter', 'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-painter-male-occupation-avatar-itim2101-flat-itim2101.png'),
-    Service('Carpenter', 'https://img.icons8.com/fluency/2x/drill.png'),
-    Service('Gardener', 'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-gardener-male-occupation-avatar-itim2101-flat-itim2101.png'),
-  ];
-
-  List<dynamic> workers = [
-    ['Alfredo Schafer', 'Plumber', 'https://images.unsplash.com/photo-1506803682981-6e718a9dd3ee?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=c3a31eeb7efb4d533647e3cad1de9257', 4.8],
-    ['Michelle Baldwin', 'Cleaner', 'https://uifaces.co/our-content/donated/oLkb60i_.jpg', 4.6],
-    ['Brenon Kalu', 'Driver', 'https://uifaces.co/our-content/donated/VUMBKh1U.jpg', 4.4]
-  ];
-  
+  final supabase = Supabase.instance.client;
+  Map<String, dynamic>? userData;
+  List<ServiceModel> _services = [];
+  List<ProviderModel> _providers = [];
 
   @override 
   void initState() { 
     super.initState(); 
     fetchUsers();
+    _loadData();
   } 
   
   Future<void> fetchUsers() async {
-    setState(() => isLoading = true);
-    final user = Supabase.instance.client.auth.currentUser;
+    final user = supabase.auth.currentUser;
     if (user == null) {
-      setState(() => isLoading = false);
       return;
     }
 
     try {
-      final data = await Supabase.instance.client
+      final data = await supabase
           .from('users')
-          .select();
+          .select()
+          .eq('id', user.id)
+          .single();
 
       setState(() {
-        users = data;
-        isLoading = false;
+        userData = data;
       });
 
       //print('Fetched users: $users');
 
     } catch (e) {
       //print('Error fetching users: $e');
+    }
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Fetch both tables at once
+      final serviceData = await supabase.from('services').select();
+      final providerData = await supabase.from('service_providers').select();
+
+      print("Fetched services: $serviceData");
+      print("Fetched providers: $providerData");
+
+      setState(() {
+        _services = serviceData.map((s) => ServiceModel.fromMap(s)).toList();
+        _providers = providerData.map((p) => ProviderModel.fromMap(p)).toList();
+      });
+    } catch (e) {
+      print("Error loading data: $e");
     }
   }
 
@@ -118,17 +122,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(15.0),
-                          child: Image.network('https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb', width: 70,)
+                          child: Image.network(
+                            'https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb', 
+                            width: 70
+                          )
                         ),
                         SizedBox(width: 15,),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(users[0]['name'] ?? '-', 
+                            Text(userData?['name'] ?? '-', 
                               style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 5,),
-                            Text(users[0]['email'] ?? '-', 
+                            Text(userData?['email'] ?? '-', 
                               style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 18),
                             ),
                           ],
@@ -154,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Categories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text('Bookings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   // TextButton(
                   //   onPressed: () {}, 
                   //   child: Text('View all',)
@@ -164,21 +171,26 @@ class _HomeScreenState extends State<HomeScreen> {
             )),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              height: 300,
               child: GridView.builder(
+                shrinkWrap: true, // 👈 important
+                physics: NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   childAspectRatio: 1.0,
                   crossAxisSpacing: 10.0,
                   mainAxisSpacing: 10.0,
                 ),
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: services.length,
+                itemCount: _services.length,
                 itemBuilder: (BuildContext context, int index) {
                   return FadeInUp(
-                    delay: Duration(milliseconds: 500 * index),
-                    child: serviceContainer(services[index].imageURL, services[index].name, index));
-                }
+                    delay: Duration(milliseconds: 200 * index),
+                    child: serviceContainer(
+                      _services[index].imageUrl,
+                      _services[index].name,
+                      index,
+                    ),
+                  );
+                },
               ),
             ),
             FadeInUp(child: Padding(
@@ -199,18 +211,19 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: workers.length,
+                itemCount: _providers.length,
                 itemBuilder: (BuildContext context, int index) {
                   return FadeInUp(
                     delay: Duration(milliseconds: 500 * index),
-                    child: workerContainer(workers[index][0], workers[index][1], workers[index][2], workers[index][3]));
+                    child: workerContainer(_providers[index].name, _providers[index].specialty, _providers[index].imageUrl ?? '', _providers[index].rating));
                 }
               ),
             ),
-            SizedBox(height: 150,),
+            SizedBox(height: 20,)
           ]
         )
       ),
+      
       // Using BottomAppBar instead of BottomNavigationBar for custom layouts
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),

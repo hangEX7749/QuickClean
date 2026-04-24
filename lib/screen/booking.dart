@@ -91,6 +91,11 @@ class _BookingPageState extends State<BookingPage> {
               }).toList(),
             ),
 
+            const SizedBox(height: 15),
+
+            //show price
+            
+
             const Spacer(),
 
             // Confirm Button
