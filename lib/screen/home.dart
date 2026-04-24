@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:quick_clean/screen/booking.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:quick_clean/models/service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -239,11 +240,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  serviceContainer(String image, String name, int index) {
+  Widget serviceContainer(String image, String name, int index) {
     return GestureDetector(
+      onTap: () {
+        // Navigate to the Booking Page and pass the service name
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BookingPage(serviceName: name),
+          ),
+        );
+      },
       child: Container(
-        margin: EdgeInsets.only(right: 10),
-        padding: EdgeInsets.all(10.0),
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           color: Colors.grey.shade100,
           border: Border.all(
@@ -256,9 +266,9 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.network(image, height: 45),
-            SizedBox(height: 20,),
-            Text(name, style: TextStyle(fontSize: 15),)
-          ]
+            const SizedBox(height: 20),
+            Text(name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+          ],
         ),
       ),
     );
