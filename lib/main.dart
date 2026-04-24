@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_clean/admin_screen/home.dart';
 import 'package:quick_clean/login.dart';
 import 'package:quick_clean/screen/home.dart';
 import 'package:quick_clean/signup.dart';
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const LoginPage(),
         '/signup': (context) => const SignUpPage(),
         '/member_home': (context) => const HomeScreen(),
-        //'/admin_home': (context) => const AdminHomeScreen(),
+        '/admin_home': (context) => const AdminHome(),
       },
     );
   }

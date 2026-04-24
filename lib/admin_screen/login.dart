@@ -1,17 +1,17 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 import 'package:flutter/material.dart';
-import 'package:quick_clean/admin_screen/login.dart';
+import 'package:quick_clean/login.dart';
 import 'package:quick_clean/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _AdminLoginPageState createState() => _AdminLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AdminLoginPageState extends State<AdminLoginPage> {
 
   String? email, password;
   final _formKey = GlobalKey<FormState>();
@@ -87,18 +87,18 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context); // remove loading
 
       // ✅ Navigate based on role
-      if (role == 'member') {
-        Navigator.pushReplacementNamed(context, '/member_home');
+      if (role == 'admin') {
+        Navigator.pushReplacementNamed(context, '/admin_home');
       } else {
-        // If not member, show error and log out and return to login and prompt msg not exists
+        // If not admin, show error and log out and return to login and prompt msg not exists
         await supabase.auth.signOut();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("No member account found with these credentials."),
+            content: Text("No admin account found with these credentials."),
             backgroundColor: Colors.redAccent,
           ),
         );
-        // Navigator.pushReplacementNamed(context, '/admin_home');
+      Navigator.pushReplacementNamed(context, '/admin_home');
       }
 
     } on AuthException catch (error) {
@@ -327,11 +327,11 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => AdminLoginPage()),
+                                  MaterialPageRoute(builder: (context) => LoginPage()),
                                 );
                               },
                               child: const Text(
-                                "Login as Admin",
+                                "Login as User",
                                 style: TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold,
