@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:quick_clean/models/service_models.dart';
 import 'package:quick_clean/models/service_provider_model.dart';
 import 'package:quick_clean/screen/booking.dart';
+import 'package:quick_clean/screen/profile.dart';
 import 'package:quick_clean/screen/view_booking.dart';
+import 'package:quick_clean/state/user_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
@@ -45,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
         userData = data;
       });
 
-      //print('Fetched users: $users');
+      currentUserData.value = data;
+
+      print('Fetched users: $user');
 
     } catch (e) {
       //print('Error fetching users: $e');
@@ -132,9 +136,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(userData?['name'] ?? '-', 
-                              style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
+                          ValueListenableBuilder(
+                            valueListenable: currentUserData,
+                            builder: (context, userData, child) {
+                              return Text(
+                                "Hello, ${userData?['name'] ?? 'Guest'}",
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              );
+                            },
+                          ),
                             SizedBox(height: 5,),
                             Text(userData?['email'] ?? '-', 
                               style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 18),
@@ -144,14 +154,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     SizedBox(height: 20,),
-                    // Container(
-                    //   height: 50,
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.blue,
-                    //     borderRadius: BorderRadius.circular(15.0)
-                    //   ),
-                    //   child: Center(child: Text('View Profile', style: TextStyle(color: Colors.white, fontSize: 18),)),
-                    // )
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ProfilePage()),
+                        );
+                        fetchUsers();
+                      },
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(15.0)
+                        ),
+                        child: Center(child: Text('View Profile', style: TextStyle(color: Colors.white, fontSize: 18),)),
+                      ),
+                    )
                   ],
                 ),
               ),

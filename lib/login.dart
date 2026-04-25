@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:quick_clean/admin_screen/login.dart';
+import 'package:quick_clean/reset_password.dart';
 import 'package:quick_clean/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -112,13 +113,22 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = false);
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.redAccent,
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen for Auth changes, specifically for 'Password Recovery'
+    supabase.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      
+      if (event == AuthChangeEvent.passwordRecovery) {
+        // The user clicked the email link! Take them to the new password page.
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
+        );
+      }
+    });
   }
 
   @override
@@ -240,26 +250,14 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          GestureDetector(
-                            // onTap: () {
-                            //   Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //       builder: (context) => const ForgotPasswordFront(),
-                            //     ),
-                            //   );
-                            // },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  "Forgot Password?",
-                                  // style: AppWidget.simpleTextFieldStyle().copyWith(
-                                  //   color: Colors.blue, fontSize: 16,
-                                  //   decoration: TextDecoration.underline,
-                                  // ),
-                                ),
-                              ],
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: _showForgotPasswordDialog,
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -351,5 +349,70 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog() {
+    final TextEditingController resetEmailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Reset Password"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Enter your email address and we'll send you a link to reset your password."),
+            const SizedBox(height: 15),
+            TextField(
+              controller: resetEmailController,
+              decoration: const InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final email = resetEmailController.text.trim();
+              if (email.isEmpty) return;
+
+              try {
+                await supabase.auth.resetPasswordForEmail(email);
+                Navigator.pop(context); // Close dialog
+                _showSnackBar("Reset link sent! Check your email.", Colors.green);
+              } catch (e) {
+                _showSnackBar("Error: $e", Colors.red);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+            child: const Text("Send Link", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+
   }
 }
