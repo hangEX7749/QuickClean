@@ -298,10 +298,10 @@ class _HomeScreenState extends State<HomeScreen> {
               
               _contactIcon(Icons.email, "Email", Colors.redAccent, 
                 () => _launchURL('mailto:info@clean.com')),
-
-              // The Logout Button
-              _contactIcon(Icons.logout, "Logout", Colors.black, 
-                () => _showLogoutDialog(context)),
+              _contactIcon(
+                Icons.facebook, "Messenger", const Color(0xFF0084FF),
+                () => _launchURL('https://m.me/YOUR_PAGE_ID_OR_USERNAME'),
+              ),
             ],
           ),
         ),
