@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_clean/models/service_models.dart';
 import 'package:quick_clean/models/service_provider_model.dart';
 import 'package:quick_clean/screen/booking.dart';
+import 'package:quick_clean/screen/view_booking.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
@@ -57,8 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final serviceData = await supabase.from('services').select();
       final providerData = await supabase.from('service_providers').select();
 
-      print("Fetched services: $serviceData");
-      print("Fetched providers: $providerData");
+      // print("Fetched services: $serviceData");
+      // print("Fetched providers: $providerData");
 
       setState(() {
         _services = serviceData.map((s) => ServiceModel.fromMap(s)).toList();
@@ -155,6 +156,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             )),
+            SizedBox(height: 20,),
+            // Inside your home.dart build method, above your Services Grid
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const UserBookingsPage()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text("My Bookings", 
+                            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 5),
+                          Text("Check your service schedule", 
+                            style: TextStyle(color: Colors.black, fontSize: 12)),
+                        ],
+                      ),
+                      const Icon(Icons.arrow_forward_ios, color: Colors.black, size: 18),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             SizedBox(height: 20,),
             FadeInUp(child: Padding(
               padding: EdgeInsets.only(left: 20.0, right: 10.0),
@@ -260,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingPage(serviceName: name),
+            builder: (context) => BookingPage(serviceName: name, serviceId: _services[index].id),
           ),
         );
       },

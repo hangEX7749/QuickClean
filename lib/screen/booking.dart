@@ -1,17 +1,25 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:quick_clean/models/service_models.dart';
+import 'package:quick_clean/screen/payment.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookingPage extends StatefulWidget {
   final String serviceName;
-  const BookingPage({super.key, required this.serviceName});
+  final String serviceId;
+  const BookingPage({super.key, required this.serviceName, required this.serviceId});
 
   @override
   State<BookingPage> createState() => _BookingPageState();
 }
 
 class _BookingPageState extends State<BookingPage> {
+
+  final supabase = Supabase.instance.client;
+  String? selectedProviderId; // Track the chosen provider
+  List<Map<String, dynamic>> availableProviders = [];
+  Map<String, dynamic>? serviceDetails;
   DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
   String selectedTime = "10:00 AM";
 
@@ -23,6 +31,47 @@ class _BookingPageState extends State<BookingPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _fetchProviders(widget.serviceName);
+  }
+
+  //fetch service details
+  Future<ServiceModel?> _fetchServiceDetails() async {
+    try {
+      final response = await supabase
+          .from('services')
+          .select()
+          .eq('id', widget.serviceId)
+          .single();
+
+
+        setState(() {
+          serviceDetails = response;
+        });
+
+      return ServiceModel.fromMap(response);
+          
+    } catch (e) {
+      print("Exception fetching service details: $e");
+      return null;
+    }
+  }
+
+  //fetch service provider details
+  Future<void> _fetchProviders(String serviceName) async {
+    final data = await supabase
+        .from('service_providers')
+        .select()
+        .eq('specialty', serviceName)
+        .eq('is_available', true);
+
+    setState(() {
+      availableProviders = List<Map<String, dynamic>>.from(data);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -32,143 +81,198 @@ class _BookingPageState extends State<BookingPage> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Select Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            
-            // Date Picker Trigger
-            InkWell(
-              onTap: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: selectedDate,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime.now().add(const Duration(days: 30)),
-                );
-                if (picked != null) setState(() => selectedDate = picked);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                        style: const TextStyle(fontSize: 16)),
-                    const Icon(Icons.calendar_today, size: 20),
-                  ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Select Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              
+              // Date Picker Trigger
+              InkWell(
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 30)),
+                  );
+                  if (picked != null) setState(() => selectedDate = picked);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                          style: const TextStyle(fontSize: 16)),
+                      const Icon(Icons.calendar_today, size: 20),
+                    ],
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 30),
-            const Text("Select Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 15),
-
-            // Time Slots Grid
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: timeSlots.map((time) {
-                bool isSelected = selectedTime == time;
-                return ChoiceChip(
-                  label: Text(time),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() => selectedTime = time);
+        
+              const SizedBox(height: 30),
+              const Text("Select Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 15),
+        
+              // Time Slots Grid
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: timeSlots.map((time) {
+                  bool isSelected = selectedTime == time;
+                  return ChoiceChip(
+                    label: Text(time),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() => selectedTime = time);
+                    },
+                    selectedColor: Colors.black,
+                    labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
+                    backgroundColor: Colors.grey.shade100,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 15),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Select Specialist", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 160,
+                    child: availableProviders.isEmpty 
+                      ? const Center(child: Text("No specialists available for this service"))
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: availableProviders.length,
+                          itemBuilder: (context, index) {
+                            final provider = availableProviders[index];
+                            bool isSelected = selectedProviderId == provider['id'];
+        
+                            return GestureDetector(
+                              onTap: () => setState(() => selectedProviderId = provider['id']),
+                              child: Container(
+                                width: 130,
+                                margin: const EdgeInsets.only(right: 15),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.white,
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.blue : Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundImage: NetworkImage(provider['image_url'] ?? 'https://via.placeholder.com/150'),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      provider['name'],
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                    ),
+                                    Text("⭐ ${provider['rating']}", style: const TextStyle(fontSize: 10)),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+              const Text("Price", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 15),
+        
+              if (serviceDetails != null) 
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // inner space
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100, // background color
+                      borderRadius: BorderRadius.circular(8), // optional rounded corners
+                    ),
+                    child: Text(
+                      "${serviceDetails!['price']}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+              else 
+                FutureBuilder(
+                  future: _fetchServiceDetails(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator(color: Colors.black);
+                    } else if (snapshot.hasError) {
+                      return const Text("Failed to load price", style: TextStyle(color: Colors.red));
+                    } else if (snapshot.hasData) {
+                      return Text("${snapshot.data!.price}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold));
+                    } else {
+                      return const SizedBox();
+                    }
                   },
-                  selectedColor: Colors.black,
-                  labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
-                  backgroundColor: Colors.grey.shade100,
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 15),
-
-            //show price
-            
-
-            const Spacer(),
-
-            // Confirm Button
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: () => _confirmBooking(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
-                child: const Text("Confirm Booking", 
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              
+              const SizedBox(height: 30),
+        
+              // Confirm Button
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () => _proceedToPayment(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  child: const Text("Confirm Booking", 
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Future<void> _confirmBooking() async {
-    final supabase = Supabase.instance.client;
-    final user = supabase.auth.currentUser;
-
-    if (user == null) {
-      _showSnackBar("Please log in to book a service", Colors.red);
+  void _proceedToPayment() {
+    if (selectedProviderId == null) {
+      _showSnackBar("Please select a specialist", Colors.orange);
       return;
     }
 
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator(color: Colors.black)),
-    );
-
-    try {
-      await supabase.from('bookings').insert({
-        'user_id': user.id,
-        'service_type': widget.serviceName,
-        'booking_date': selectedDate.toIso8601String(), // Format as YYYY-MM-DD
-        'booking_time': selectedTime,
-        'status': 'pending',
-      });
-
-      Navigator.pop(context); // Remove loading indicator
-
-      _showSuccessDialog();
-    } catch (e) {
-      Navigator.pop(context); // Remove loading indicator
-      _showSnackBar("Booking failed: $e", Colors.red);
-    }
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Icon(Icons.check_circle, color: Colors.green, size: 50),
-        content: const Text("Booking Successful!\nWe will contact you shortly.", textAlign: TextAlign.center),
-        actions: [
-          Center(
-            child: TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Back to Home
-              },
-              child: const Text("Done", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-            ),
-          )
-        ],
+    // Pass all data to the Payment Page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentPage(
+          bookingData: {
+            'service_type': widget.serviceName,
+            'booking_date': selectedDate.toIso8601String().split('T')[0],
+            'booking_time': selectedTime,
+            'total_price': serviceDetails?['price'] ?? 0,
+            'provider_id': selectedProviderId,
+          },
+        ),
       ),
     );
   }
