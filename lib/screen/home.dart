@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       currentUserData.value = data;
 
-      print('Fetched users: $user');
+      //print('Fetched users: $user');
 
     } catch (e) {
       //print('Error fetching users: $e');
@@ -71,25 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } catch (e) {
       print("Error loading data: $e");
-    }
-  }
-
-  Future<void> _logout(BuildContext context) async {
-    try {
-      // 1. Sign out from Supabase
-      await Supabase.instance.client.auth.signOut();
-
-      // 2. Use rootNavigator to ensure we break out of any dialogs/overlays
-      if (!mounted) return; // Best practice: check if widget is still alive
-      
-      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-        '/', 
-        (route) => false,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error logging out: $e")),
-      );
     }
   }
 
@@ -232,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  childAspectRatio: 1.0,
+                  childAspectRatio: MediaQuery.of(context).size.width < 360 ? 0.85 : 1.0,
                   crossAxisSpacing: 10.0,
                   mainAxisSpacing: 10.0,
                 ),
@@ -400,31 +381,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Icon(icon, color: color),
           Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (innerContext) => AlertDialog( // renamed to innerContext for clarity
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to leave?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(innerContext), 
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              // Close the dialog first using its specific context
-              Navigator.pop(innerContext);
-              // Then call logout using the main page context
-              _logout(context);
-            }, 
-            child: const Text("Logout", style: TextStyle(color: Colors.red))
-          ),
         ],
       ),
     );
