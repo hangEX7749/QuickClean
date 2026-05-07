@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context); // remove loading
 
       // ✅ Navigate based on role
-      if (role == 'member') {
+      if (role == 'authenticated') {
         Navigator.pushReplacementNamed(context, '/member_home');
       } else {
         // If not member, show error and log out and return to login and prompt msg not exists

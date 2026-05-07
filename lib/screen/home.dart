@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       currentUserData.value = data;
 
-      print('Fetched users: $user');
+      //print('Fetched users: $user');
 
     } catch (e) {
       //print('Error fetching users: $e');
@@ -74,31 +74,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _logout(BuildContext context) async {
-    try {
-      // 1. Sign out from Supabase
-      await Supabase.instance.client.auth.signOut();
-
-      // 2. Use rootNavigator to ensure we break out of any dialogs/overlays
-      if (!mounted) return; // Best practice: check if widget is still alive
-      
-      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-        '/', 
-        (route) => false,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error logging out: $e")),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QuickClean', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [IconButton(icon: Icon(Icons.notifications), onPressed: () {})],
+        title: Text('QuickClean', style: TextStyle(fontWeight: FontWeight.bold))
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -139,9 +119,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ValueListenableBuilder(
                             valueListenable: currentUserData,
                             builder: (context, userData, child) {
-                              return Text(
-                                "Hello, ${userData?['name'] ?? 'Guest'}",
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              return FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text("Hello, ${userData?['username']}", style: TextStyle(fontSize: 20)),
                               );
                             },
                           ),
@@ -225,29 +205,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             )),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: GridView.builder(
-                shrinkWrap: true, // 👈 important
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 1.0,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                ),
-                itemCount: _services.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return FadeInUp(
-                    delay: Duration(milliseconds: 200 * index),
-                    child: serviceContainer(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                // On very small screens, use 2 columns instead of 3
+                int crossAxisCount = constraints.maxWidth < 350 ? 2 : 3;
+                
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    // Increase the ratio if the text is being cut off (height > width)
+                    childAspectRatio: 0.85, 
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                  ),
+                  itemCount: _services.length,
+                  itemBuilder: (context, index) {
+                    return serviceContainer(
                       _services[index].imageUrl,
                       _services[index].name,
                       index,
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                );
+              },
             ),
             FadeInUp(child: Padding(
               padding: EdgeInsets.only(left: 20.0, right: 10.0),
@@ -344,50 +326,46 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   workerContainer(String name, String job, String image, double rating) {
-    return GestureDetector(
-      child: AspectRatio(
-        aspectRatio: 3.5,
-        child: Container(
-          margin: EdgeInsets.only(right: 20),
-          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 2.0,
+    return Container(
+      margin: EdgeInsets.only(right: 20),
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+      // Remove AspectRatio, use width based on screen size
+      width: MediaQuery.of(context).size.width * 0.8, 
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade200, width: 2.0),
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Row(
+        children: <Widget>[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(15.0),
+            child: Image.network(image, width: 50, height: 50, fit: BoxFit.cover),
+          ),
+          SizedBox(width: 15),
+          // Use Expanded so the text knows it must stay within the remaining space
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(name, 
+                  maxLines: 1, 
+                  overflow: TextOverflow.ellipsis, // Adds "..." if name is too long
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(job, style: TextStyle(fontSize: 14)),
+              ],
             ),
-            borderRadius: BorderRadius.circular(20.0),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: Image.network(image)
-              ),
-              SizedBox(width: 20,),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-                  Text(job, style: TextStyle(fontSize: 15),)
-                ],
-              ),
-              Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(rating.toString(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                  SizedBox(height: 5,),
-                  Icon(Icons.star, color: Colors.orange, size: 20,)
-                ],
-              )
-            ]
-          ),
-        ),
+          // Rating section
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(rating.toString(), style: TextStyle(fontWeight: FontWeight.bold)),
+              Icon(Icons.star, color: Colors.orange, size: 18),
+            ],
+          )
+        ],
       ),
     );
   }
@@ -400,31 +378,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Icon(icon, color: color),
           Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (innerContext) => AlertDialog( // renamed to innerContext for clarity
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to leave?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(innerContext), 
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              // Close the dialog first using its specific context
-              Navigator.pop(innerContext);
-              // Then call logout using the main page context
-              _logout(context);
-            }, 
-            child: const Text("Logout", style: TextStyle(color: Colors.red))
-          ),
         ],
       ),
     );

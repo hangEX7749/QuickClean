@@ -45,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
       });
 
     _emailController.text = user.email ?? '';
-    _nameController.text = userData?['name'] ?? '';
+    _nameController.text = userData?['username'] ?? '';
 
   }
 
@@ -54,17 +54,17 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _isLoading = true);
     try {
       await supabase.auth.updateUser(
-        UserAttributes(data: {'name': _nameController.text.trim()}),
+        UserAttributes(data: {'username': _nameController.text.trim()}),
       );
 
       await supabase
           .from('users')
-          .update({'name': _nameController.text.trim()})
+          .update({'username': _nameController.text.trim()})
           .eq('id', supabase.auth.currentUser!.id);
 
       currentUserData.value = {
         ...currentUserData.value!,
-        'name': _nameController.text,
+        'username': _nameController.text,
       };
 
       ScaffoldMessenger.of(context).showSnackBar(
