@@ -21,22 +21,28 @@ class BookingListState extends State<BookingList> with SingleTickerProviderState
     _tabController = TabController(length: 4, vsync: this);
   }
 
-  Future<void> _fetchBookings() async {
-    try {
-      // Fetch bookings and join with user table to get the customer name
-      final data = await supabase
-          .from('bookings')
-          .select('*, user:users(name, email))')
-          .order('booking_date', ascending: true);
+Future<void> _fetchBookings() async {
+  try {
+    // Corrected the parenthesis: users(username, email)
+    final data = await supabase
+        .from('bookings')
+        .select('''
+          *,
+          users (
+            username,
+            name
+          )
+        ''');
 
-      setState(() {
-        _allBookings = List<Map<String, dynamic>>.from(data);
-        _isLoading = false;
-      });
-    } catch (e) {
-      debugPrint("Error: $e");
-    }
+    setState(() {
+      _allBookings = List<Map<String, dynamic>>.from(data);
+      _isLoading = false;
+    });
+  } catch (e) {
+    debugPrint("Error: $e");
+    setState(() => _isLoading = false);
   }
+}
 
   Future<void> _updateStatus(String bookingId, String newStatus) async {
     await supabase.from('bookings').update({'status': newStatus}).eq('id', bookingId);
@@ -94,7 +100,7 @@ class BookingListState extends State<BookingList> with SingleTickerProviderState
           margin: const EdgeInsets.only(bottom: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: ExpansionTile(
-            title: Text("${booking['service_type']} - ${booking['user']['name']}"),
+            title: Text("${booking['service_type']} - ${booking['users']['username']} "),
             subtitle: Text("${booking['booking_date']} at ${booking['booking_time']}"),
             leading: _getStatusIcon(status),
             children: [
@@ -103,7 +109,7 @@ class BookingListState extends State<BookingList> with SingleTickerProviderState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Property Size: ${booking['property_size'] ?? 'N/A'}"),
+                    // Text("Property Size: ${booking['property_size'] ?? 'N/A'}"),
                     Text("Total Price: \$${booking['total_price'] ?? '0.00'}"),
                     if (booking['notes'] != null) Text("Notes: ${booking['notes']}"),
                     const Divider(),

@@ -32,15 +32,17 @@ class _AddAdminPageState extends State<AddAdminPage> {
         password: _passwordController.text.trim(),
         data: {
           'name': _nameController.text.trim(),
+          'username': _nameController.text.trim(),
           'role': 'admin', // Metadata is passed here
         },
       );
 
       if (res.user != null) {
         // 2. Insert into your public.users table
-        await supabase.from('users').insert({
+        await supabase.from('users').upsert({
           'id': res.user!.id,
           'name': _nameController.text.trim(),
+          'username' : _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'role': 'admin',
         });
@@ -51,6 +53,7 @@ class _AddAdminPageState extends State<AddAdminPage> {
         Navigator.pop(context);
       }
     } catch (e) {
+              print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
       );

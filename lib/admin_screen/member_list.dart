@@ -29,7 +29,7 @@ class _AdminMemberListState extends State<AdminMemberList> {
       final data = await supabase
           .from('users')
           .select()
-          .filter('role', 'eq', 'member')
+          .filter('role', 'eq', 'authenticated')
           .order('name', ascending: true);
 
       setState(() {
@@ -96,10 +96,10 @@ class _AdminMemberListState extends State<AdminMemberList> {
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: Colors.black,
-                                child: Text(member['name'][0].toUpperCase(), 
+                                child: Text(member['username'].toString().substring(0, 1).toUpperCase(), 
                                   style: const TextStyle(color: Colors.white)),
                               ),
-                              title: Text(member['name'] ?? 'No Name'),
+                              title: Text(member['username'] ?? 'No Name'),
                               subtitle: Text(member['email']),
                               trailing: const Icon(Icons.edit_outlined),
                               onTap: () {

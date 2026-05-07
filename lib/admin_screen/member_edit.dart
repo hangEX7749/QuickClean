@@ -19,17 +19,17 @@ class _MemberEditPageState extends State<MemberEditPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.member['name']);
-    _selectedRole = widget.member['role'] ?? 'member';
+    _nameController = TextEditingController(text: widget.member['username']);
+    _selectedRole = widget.member['role'] ?? 'authenticated';
   }
 
   Future<void> _updateMember() async {
     setState(() => _isSaving = true);
     try {
       await Supabase.instance.client
-          .from('user')
+          .from('users')
           .update({
-            'name': _nameController.text.trim(),
+            'username': _nameController.text.trim(),
             'role': _selectedRole,
           })
           .eq('id', widget.member['id']);
@@ -64,7 +64,7 @@ class _MemberEditPageState extends State<MemberEditPage> {
               value: _selectedRole,
               decoration: const InputDecoration(labelText: "Account Role", border: OutlineInputBorder()),
               items: const [
-                DropdownMenuItem(value: 'member', child: Text("Member")),
+                DropdownMenuItem(value: 'authenticated', child: Text("Member")),
                 DropdownMenuItem(value: 'admin', child: Text("Admin")),
               ],
               onChanged: (val) => setState(() => _selectedRole = val!),

@@ -53,31 +53,46 @@ class _AdminServicePageState extends State<AdminServicePage> {
         : ListView.builder(
             itemCount: _services.length,
             itemBuilder: (context, index) {
-              final service = _services[index];
-              return ListTile(
-                leading: Image.network(service['image_url'], width: 40, errorBuilder: (c, e, s) => const Icon(Icons.broken_image)),
-                title: Text(service['name']),
-                subtitle: Text("\$${service['price']}"),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () => _deleteService(service['id']),
-                ),
-              );
-            },
-          ),
-    );
+            final service = _services[index];
+            return ListTile(
+              leading: Image.network(
+                service['image_url'], 
+                width: 40, 
+                errorBuilder: (c, e, s) => const Icon(Icons.broken_image)
+              ),
+              title: Text(service['name']),
+              subtitle: Text("\$${service['price']}"),
+              trailing: Row( // Use a Row to hold two buttons
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                    onPressed: () => _showServiceDialog(service: service), // Pass the data!
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () => _deleteService(service['id']),
+                  ),
+                ],
+              ),
+            );
+          },
+    ));
   }
 
   // Dialog to Add/Edit Service
-  void _showServiceDialog() {
-    final nameController = TextEditingController();
-    final urlController = TextEditingController();
-    final priceController = TextEditingController();
+  void _showServiceDialog({Map<String, dynamic>? service}) {
+    final isEditing = service != null;
+    
+    // Pre-fill controllers if we are editing
+    final nameController = TextEditingController(text: isEditing ? service['name'] : "");
+    final urlController = TextEditingController(text: isEditing ? service['image_url'] : "");
+    final priceController = TextEditingController(text: isEditing ? service['price'].toString() : "");
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("New Service"),
+        title: Text(isEditing ? "Edit Service" : "New Service"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -90,21 +105,35 @@ class _AdminServicePageState extends State<AdminServicePage> {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () async {
-              await supabase.from('services').insert({
-                'name': nameController.text,
-                'image_url': urlController.text,
-                'price': double.tryParse(priceController.text) ?? 0,
-              });
-              Navigator.pop(context);
-              _fetchServices();
+            try {
+                final data = {
+                  'name': nameController.text,
+                  'image_url': urlController.text,
+                  'price': double.tryParse(priceController.text) ?? 0,
+                };
+
+                if (isEditing) {
+                  await supabase.from('services').update(data).eq('id', service['id']);
+                } else {
+                  await supabase.from('services').insert(data);
+                }
+
+                Navigator.pop(context);
+                _fetchServices();
+                _showSnackBar("Success!", Colors.green);
+              } on PostgrestException catch (error) {
+                // This will catch Supabase-specific errors (like RLS or Schema errors)
+                _showSnackBar("Supabase Error: ${error.message}", Colors.red);
+              } catch (e) {
+                _showSnackBar("Unexpected Error: $e", Colors.red);
+              }
             },
-            child: const Text("Add"),
+            child: Text(isEditing ? "Save Changes" : "Add"),
           )
         ],
       ),
     );
   }
-
   void _showSnackBar(String msg, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: color));
   }

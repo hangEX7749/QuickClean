@@ -39,17 +39,23 @@ class _SignUpPageState extends State<SignUpPage> {
       final AuthResponse res = await supabase.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
+        data: {
+          'name': _nameController.text.trim(),
+          'username': _nameController.text.trim(),
+          'role': 'authenticated', // Set role in user_metadata
+        }
       );
 
       final User? user = res.user;
 
       if (user != null) {
         // 2. Insert into your custom 'user' table with role 'member'
-        await supabase.from('users').insert({
+        await supabase.from('users').upsert({
           'id': user.id,
           'email': _emailController.text.trim(),
           'name': _nameController.text.trim(),
-          'role': 'member',
+          'username' : _nameController.text.trim(),
+          'role': 'authenticated', 
         });
 
         Navigator.pop(context); // Close loading
