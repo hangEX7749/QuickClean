@@ -4,6 +4,7 @@ import 'package:quick_clean/login.dart';
 import 'package:quick_clean/screen/home.dart';
 import 'package:quick_clean/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 void main() async{
 
@@ -20,13 +21,49 @@ void main() async{
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  static void setLocale(BuildContext context, Locale newLocale) {
+    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    // ignore: invalid_use_of_protected_member
+    state?.setState(() => state._locale = newLocale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+
   // This widget is the root of your application.
+  // @override
+  // Widget build(BuildContext context) {
+  //   return MaterialApp(
+  //     localizationsDelegates: AppLocalizations.localizationsDelegates,
+  //     supportedLocales: AppLocalizations.supportedLocales,
+  //     theme: ThemeData(
+  //       primarySwatch: Colors.blue,
+  //       useMaterial3: true, // Gives you the modern Android 14+ look
+  //       fontFamily: 'Poppins', // A clean, modern font for service apps
+  //     ),
+  //     initialRoute: '/',
+  //     routes: {
+  //       '/': (context) => const LoginPage(),
+  //       '/signup': (context) => const SignUpPage(),
+  //       '/member_home': (context) => const HomeScreen(),
+  //       '/admin_home': (context) => const AdminHome(),
+  //     },
+  //   );
+  // }
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale? _locale;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      locale: _locale, // This controls the app language
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true, // Gives you the modern Android 14+ look

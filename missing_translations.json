@@ -1,0 +1,23 @@
+{
+  "my": [
+    "helloWorld",
+    "loginTitle",
+    "emailLabel",
+    "emailHint",
+    "passwordLabel",
+    "loginButton",
+    "forgotPassword",
+    "changeLanguage"
+  ],
+
+  "zh": [
+    "helloWorld",
+    "loginTitle",
+    "emailLabel",
+    "emailHint",
+    "passwordLabel",
+    "loginButton",
+    "forgotPassword",
+    "changeLanguage"
+  ]
+}

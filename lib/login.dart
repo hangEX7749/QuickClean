@@ -1,9 +1,11 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:quick_clean/admin_screen/login.dart';
+import 'package:quick_clean/main.dart';
 import 'package:quick_clean/reset_password.dart';
 import 'package:quick_clean/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -162,6 +164,36 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ),
+            Positioned(
+              top: 40,
+              right: 20,
+              child: PopupMenuButton<Locale>(
+                // We swap 'icon' for 'child' to combine the icon and text
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // Keeps the row tight
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.changeLanguage, 
+                      style: const TextStyle(
+                        color: Colors.white, 
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.language, color: Colors.white),
+                  ],
+                ),
+                onSelected: (Locale locale) {
+                  MyApp.setLocale(context, locale);
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: Locale('en'), child: Text("English")),
+                  const PopupMenuItem(value: Locale('zh'), child: Text("中文")),
+                  const PopupMenuItem(value: Locale('ms'), child: Text("Bahasa Melayu")),
+                ],
+              ),
+            ),
             Container(
               margin: EdgeInsets.only(
                   top: MediaQuery.of(context).size.height / 3.6,
@@ -188,11 +220,8 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 10),
                           Center(
                             child: Text(
-                              "Log In",
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              AppLocalizations.of(context)!.loginTitle, // 'loginTitle' must be in your .arb file
+                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                             ),
                           ),
                           const SizedBox(height: 10),

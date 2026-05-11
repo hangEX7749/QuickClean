@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "helloWorld": "Hello World!",
+  "@helloWorld": {},
+  "loginTitle": "Log In",
+  "@loginTitle": {},
+  "emailLabel": "Email",
+  "@emailLabel": {},
+  "emailHint": "Enter your email",
+  "@emailHint": {},
+  "passwordLabel": "Password",
+  "@passwordLabel": {},
+  "loginButton": "Log In",
+  "@loginButton": {},
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {},
+  "changeLanguage": "Language",
+  "@changeLanguage": {}
+}

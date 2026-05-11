@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print
 import 'package:flutter/material.dart';
+import 'package:quick_clean/main.dart';
 import 'package:quick_clean/models/service_models.dart';
 import 'package:quick_clean/models/service_provider_model.dart';
 import 'package:quick_clean/screen/booking.dart';
@@ -9,6 +10,7 @@ import 'package:quick_clean/state/user_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key}); 
@@ -78,7 +80,43 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QuickClean', style: TextStyle(fontWeight: FontWeight.bold))
+        title: Text('QuickClean', style: TextStyle(fontWeight: FontWeight.bold)),
+        actions: [
+          PopupMenuButton<Locale>(
+            // Use 'child' instead of 'icon' to combine Text and Icon
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.language, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context)!.changeLanguage, // Localize this!
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+            onSelected: (Locale locale) {
+              MyApp.setLocale(context, locale);
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: Locale('en'),
+                child: Text("English"),
+              ),
+              const PopupMenuItem(
+                value: Locale('zh'),
+                child: Text("中文"),
+              ),
+              const PopupMenuItem(
+                value: Locale('ms'),
+                child: Text("Bahasa Melayu"),
+              ),
+            ],
+          ),
+        ],
+        
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -116,15 +154,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                          ValueListenableBuilder(
-                            valueListenable: currentUserData,
-                            builder: (context, userData, child) {
-                              return FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text("Hello, ${userData?['username']}", style: TextStyle(fontSize: 20)),
-                              );
-                            },
-                          ),
+                            ValueListenableBuilder(
+                              valueListenable: currentUserData,
+                              builder: (context, userData, child) {
+                                return FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text("Hello, ${userData?['username']}", style: TextStyle(fontSize: 20)),
+                                );
+                              },
+                            ),
                             SizedBox(height: 5,),
                             Text(userData?['email'] ?? '-', 
                               style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 18),
@@ -259,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 20,)
           ]
-        )
+        ),
       ),
       
       // Using BottomAppBar instead of BottomNavigationBar for custom layouts
