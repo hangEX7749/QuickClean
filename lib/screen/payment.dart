@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class PaymentPage extends StatefulWidget {
   final Map<String, dynamic> bookingData;
@@ -38,7 +39,7 @@ class _PaymentPageState extends State<PaymentPage> {
       _showSuccessDialog();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error saving booking: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text(AppLocalizations.of(context)!.bookingSaveError), backgroundColor: Colors.red),
       );
     } finally {
       setState(() => _isProcessing = false);
@@ -52,10 +53,10 @@ class _PaymentPageState extends State<PaymentPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50, // Subtle background color
       appBar: AppBar(
-        title: const Text("Checkout", style: TextStyle(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.checkout, style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: Column(
         children: [
@@ -65,13 +66,13 @@ class _PaymentPageState extends State<PaymentPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Order Summary", 
+                  Text(AppLocalizations.of(context)!.orderSummary, 
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 15),
+                  SizedBox(height: 15),
                   
                   // Detailed Order Card
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
@@ -79,16 +80,16 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                     child: Column(
                       children: [
-                        _summaryRow("Service", "${widget.bookingData['service_type']}"),
+                        _summaryRow(AppLocalizations.of(context)!.service, "${widget.bookingData['service_type']}"),
                         const Divider(height: 30),
-                        _summaryRow("Date", "${widget.bookingData['booking_date']}"),
+                        _summaryRow(AppLocalizations.of(context)!.date, "${widget.bookingData['booking_date']}"),
                         const SizedBox(height: 10),
-                        _summaryRow("Time", "${widget.bookingData['booking_time']}"),
+                        _summaryRow(AppLocalizations.of(context)!.time, "${widget.bookingData['booking_time']}"),
                         const Divider(height: 30),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Total Amount", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text(AppLocalizations.of(context)!.totalAmount, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             Text("\$$price", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue)),
                           ],
                         ),
@@ -140,7 +141,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                     child: _isProcessing 
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Confirm & Pay Now", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      : Text(AppLocalizations.of(context)!.confirmAndPay, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -185,11 +186,11 @@ class _PaymentPageState extends State<PaymentPage> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Icon(Icons.check_circle, color: Colors.green, size: 60),
-        content: const Text("Payment Successful!\nYour booking is now confirmed."),
+        content: Text(AppLocalizations.of(context)!.bookingConfirmed, textAlign: TextAlign.center, style: TextStyle(fontSize: 18)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-            child: const Text("Back to Home"),
+            child: Text(AppLocalizations.of(context)!.backToHome, style: TextStyle(color: Colors.blue, fontSize: 16, fontWeight: FontWeight.bold)),
           )
         ],
       ),

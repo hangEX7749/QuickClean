@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_clean/admin_screen/member_edit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class AdminMemberList extends StatefulWidget {
   const AdminMemberList({super.key});
@@ -39,7 +40,7 @@ class _AdminMemberListState extends State<AdminMemberList> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching members: $e")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.supabaseError.replaceAll('\$e', e.toString())), backgroundColor: Colors.red),
       );
     }
   }
@@ -58,7 +59,7 @@ class _AdminMemberListState extends State<AdminMemberList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Members", style: TextStyle(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.manageMembers, style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -72,7 +73,7 @@ class _AdminMemberListState extends State<AdminMemberList> {
               controller: _searchController,
               onChanged: _filterSearch,
               decoration: InputDecoration(
-                hintText: "Search by name or email...",
+                hintText: AppLocalizations.of(context)!.searchByNameOrEmail,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
@@ -86,7 +87,7 @@ class _AdminMemberListState extends State<AdminMemberList> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: Colors.black))
                 : _filteredMembers.isEmpty
-                    ? const Center(child: Text("No members found."))
+                    ? Center(child: Text(AppLocalizations.of(context)!.noMembersFound))
                     : ListView.builder(
                         itemCount: _filteredMembers.length,
                         itemBuilder: (context, index) {

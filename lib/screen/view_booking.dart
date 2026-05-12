@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class UserBookingsPage extends StatefulWidget {
   const UserBookingsPage({super.key});
@@ -27,16 +28,16 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          title: const Text("My Bookings", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          title: Text(AppLocalizations.of(context)!.bookings, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           backgroundColor: Colors.white,
           elevation: 0,
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: Colors.black,
             indicatorColor: Colors.black,
             unselectedLabelColor: Colors.grey,
             tabs: [
-              Tab(text: "Upcoming"),
-              Tab(text: "History"),
+              Tab(text: AppLocalizations.of(context)!.upcoming),
+              Tab(text: AppLocalizations.of(context)!.history),
             ],
           ),
         ),
@@ -73,7 +74,7 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
         final bookings = snapshot.data ?? [];
 
         if (bookings.isEmpty) {
-          return const Center(child: Text("No bookings found."));
+          return Center(child: Text(AppLocalizations.of(context)!.noBooking));
         }
 
         return RefreshIndicator(
@@ -114,7 +115,7 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    booking['status'].toUpperCase(),
+                    AppLocalizations.of(context)!.bookingStatus(booking['status']),
                     style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -137,13 +138,13 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Total: \$${booking['total_price']}",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  "${AppLocalizations.of(context)!.total}: \$${booking['total_price']}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 if (booking['status'] == 'pending' || booking['status'] == 'confirmed')
                   TextButton(
                     onPressed: () => _cancelBooking(booking['id']),
-                    child: const Text("Cancel Booking", style: TextStyle(color: Colors.red)),
+                    child: Text(AppLocalizations.of(context)!.cancelBooking, style: TextStyle(color: Colors.red)),
                   ),
               ],
             ),
@@ -158,11 +159,11 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
     bool? confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Cancel Booking?"),
-        content: const Text("Are you sure you want to cancel this service?"),
+        title: Text("${AppLocalizations.of(context)!.cancelBooking}?"),
+        content: Text(AppLocalizations.of(context)!.confirmCancelBooking),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes, Cancel", style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.no)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.yes)),
         ],
       ),
     );
@@ -180,13 +181,30 @@ class _UserBookingsPageState extends State<UserBookingsPage> {
       
       // 3. Success Feedback
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Booking cancelled successfully")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.bookingCancelled), backgroundColor: Colors.green),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text(AppLocalizations.of(context)!.bookingCancelError), backgroundColor: Colors.red),
       );
     }
   }
 
+}
+
+extension on AppLocalizations {
+  String bookingStatus(String status) {
+    switch (status) {
+      case 'pending':
+        return pending;
+      case 'confirmed':
+        return confirmed;
+      case 'completed':
+        return completed;
+      case 'cancelled':
+        return cancelled;
+      default:
+        return status;
+    }
+  }
 }

@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:quick_clean/login.dart';
+import 'package:quick_clean/main.dart';
 import 'package:quick_clean/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -71,7 +73,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       final user = res.user;
 
       if (user == null) {
-        throw Exception("Login failed");
+        throw Exception(AppLocalizations.of(context)!.loginFailed);
       }
 
       // ✅ Use user.id instead of email
@@ -93,8 +95,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         // If not admin, show error and log out and return to login and prompt msg not exists
         await supabase.auth.signOut();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("No admin account found with these credentials."),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.adminNotFound),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -152,6 +154,36 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 ],
               ),
             ),
+            Positioned(
+              top: 40,
+              right: 20,
+              child: PopupMenuButton<Locale>(
+                // We swap 'icon' for 'child' to combine the icon and text
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // Keeps the row tight
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.changeLanguage, 
+                      style: const TextStyle(
+                        color: Colors.white, 
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.language, color: Colors.white),
+                  ],
+                ),
+                onSelected: (Locale locale) {
+                  MyApp.setLocale(context, locale);
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: Locale('en'), child: Text(Localizations.localeOf(context).languageCode == 'en' ? "English (Current)" : "English")),
+                  PopupMenuItem(value: Locale('zh'), child: Text(Localizations.localeOf(context).languageCode == 'zh' ? "中文 (Current)" : "中文")),
+                  PopupMenuItem(value: Locale('my'), child: Text(Localizations.localeOf(context).languageCode == 'ms' ? "Bahasa Melayu (Current)" : "Bahasa Melayu")),
+                ],
+              ),
+            ),
             Container(
               margin: EdgeInsets.only(
                   top: MediaQuery.of(context).size.height / 3.6,
@@ -178,7 +210,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           const SizedBox(height: 10),
                           Center(
                             child: Text(
-                              "Admin Log In",
+                              AppLocalizations.of(context)!.loginAsAdmin,
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -187,7 +219,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            "Email",
+                            AppLocalizations.of(context)!.emailLabel,
                           ),
                           const SizedBox(height: 5),
                           Container(
@@ -199,9 +231,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               validator: _validateEmail,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: "Enter your email",
+                                hintText: AppLocalizations.of(context)!.emailHint,
                                 prefixIcon: Icon(Icons.email_outlined),
                                 contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                                 errorStyle: TextStyle(
@@ -214,7 +246,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            "Password",
+                            AppLocalizations.of(context)!.passwordLabel,
                           ),
                           const SizedBox(height: 5),
                           Container(
@@ -226,9 +258,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                               obscureText: true,
                               controller: _passwordController,
                               validator: _validatePassword,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: "Enter your password",
+                                hintText: AppLocalizations.of(context)!.passwordHint,
                                 prefixIcon: Icon(Icons.password_outlined),
                                 contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                                 errorStyle: TextStyle(
@@ -253,7 +285,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  "Forgot Password?",
+                                  AppLocalizations.of(context)!.forgotPassword,
                                   // style: AppWidget.simpleTextFieldStyle().copyWith(
                                   //   color: Colors.blue, fontSize: 16,
                                   //   decoration: TextDecoration.underline,
@@ -281,7 +313,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    "Log In",
+                                    AppLocalizations.of(context)!.login_button,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -297,7 +329,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Don't have an account?",
+                                AppLocalizations.of(context)!.dontHaveAccount,
                                 //style: AppWidget.simpleTextFieldStyle(),
                               ),
                               const SizedBox(width: 10),
@@ -311,7 +343,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                                   );
                                 },
                                 child: Text(
-                                  "SignUp",
+                                  AppLocalizations.of(context)!.signUp,
                                   style: TextStyle(
                                     color: Colors.blue,
                                     fontSize: 16,
@@ -330,8 +362,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                                   MaterialPageRoute(builder: (context) => LoginPage()),
                                 );
                               },
-                              child: const Text(
-                                "Login as User",
+                              child: Text(
+                                AppLocalizations.of(context)!.loginAsUser,
                                 style: TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold,

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class EditServiceProvider extends StatefulWidget {
   final Map<String, dynamic> provider;
@@ -53,22 +54,22 @@ class _EditServiceProviderState extends State<EditServiceProvider> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Provider")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.editServiceProvider, style: TextStyle(color: Colors.black)), backgroundColor: Colors.white, elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: _nameController, decoration: const InputDecoration(labelText: "Name")),
+            TextField(controller: _nameController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.fullName)),
             const SizedBox(height: 15),
-            TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email")),
+            TextField(controller: _emailController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.email)),
             const SizedBox(height: 15),
-            TextField(controller: _phoneController, decoration: const InputDecoration(labelText: "Phone")),
+            TextField(controller: _phoneController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.phone)),
             const SizedBox(height: 15),
             DropdownButtonFormField<String>(
               value: _availableServices.contains(_specialtyController.text) 
                     ? _specialtyController.text 
                     : null,
-              decoration: const InputDecoration(labelText: "Specialty", border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.specialty, border: OutlineInputBorder()),
               items: _availableServices.map((service) {
                 return DropdownMenuItem(value: service, child: Text(service));
               }).toList(),
@@ -76,7 +77,7 @@ class _EditServiceProviderState extends State<EditServiceProvider> {
             ),
             const SizedBox(height: 15),
             SwitchListTile(
-              title: const Text("Available for Booking"),
+              title: Text(AppLocalizations.of(context)!.availableForBooking),
               value: _isAvailable,
               onChanged: (val) => setState(() => _isAvailable = val),
             ),
@@ -87,7 +88,7 @@ class _EditServiceProviderState extends State<EditServiceProvider> {
               child: ElevatedButton(
                 onPressed: _update,
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                child: const Text("Save Changes", style: TextStyle(color: Colors.white)),
+                child: Text(AppLocalizations.of(context)!.save, style: TextStyle(color: Colors.white)),
               ),
             )
           ],

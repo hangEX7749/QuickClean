@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_clean/admin_screen/service_provider_edit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class ServiceProvider extends StatefulWidget {
   const ServiceProvider({super.key});
@@ -49,19 +50,19 @@ class _ServiceProviderState extends State<ServiceProvider> {
       context: context,
       builder: (context) => StatefulBuilder( // Needed to update dropdown state inside dialog
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text("Add New Provider"),
+          title: Text(AppLocalizations.of(context)!.newServiceProvider),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: nameController, decoration: const InputDecoration(labelText: "Full Name")),
-                TextField(controller: emailController, decoration: const InputDecoration(labelText: "Email")),
+                TextField(controller: nameController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.fullName)),
+                TextField(controller: emailController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.email)),
                 const SizedBox(height: 15),
                 
                 // 2. Dropdown for Specialty
                 DropdownButtonFormField<String>(
                   value: selectedSpecialty,
-                  hint: const Text("Select Specialty"),
+                  hint: Text(AppLocalizations.of(context)!.selectSpecialty),
                   items: serviceNames.map((name) {
                     return DropdownMenuItem(value: name, child: Text(name));
                   }).toList(),
@@ -92,7 +93,7 @@ class _ServiceProviderState extends State<ServiceProvider> {
                   _fetchProviders();
                 }
               },
-              child: const Text("Create", style: TextStyle(color: Colors.white)),
+              child: Text(AppLocalizations.of(context)!.create),
             )
           ],
         ),
@@ -104,7 +105,7 @@ class _ServiceProviderState extends State<ServiceProvider> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Service Providers", style: TextStyle(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.serviceProviders, style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -125,7 +126,7 @@ class _ServiceProviderState extends State<ServiceProvider> {
                 child: ListTile(
                   leading: const CircleAvatar(backgroundColor: Colors.black, child: Icon(Icons.person, color: Colors.white)),
                   title: Text(item['name']),
-                  subtitle: Text(item['specialty'] ?? 'General Cleaner'),
+                  subtitle: Text(item['specialty'] ?? "NULL"),
                   trailing: const Icon(Icons.edit_outlined),
                   onTap: () {
                     Navigator.push(

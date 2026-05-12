@@ -110,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text("中文"),
               ),
               const PopupMenuItem(
-                value: Locale('ms'),
+                value: Locale('my'),
                 child: Text("Bahasa Melayu"),
               ),
             ],
@@ -159,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context, userData, child) {
                                 return FittedBox(
                                   fit: BoxFit.scaleDown,
-                                  child: Text("Hello, ${userData?['username']}", style: TextStyle(fontSize: 20)),
+                                  child: Text("${AppLocalizations.of(context)!.hello}, ${userData?['username']}", style: TextStyle(fontSize: 20)),
                                 );
                               },
                             ),
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.blue,
                           borderRadius: BorderRadius.circular(15.0)
                         ),
-                        child: Center(child: Text('View Profile', style: TextStyle(color: Colors.white, fontSize: 18),)),
+                        child: Center(child: Text(AppLocalizations.of(context)!.viewProfile, style: TextStyle(color: Colors.white, fontSize: 18),)),
                       ),
                     )
                   ],
@@ -215,11 +215,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text("My Bookings", 
+                        children: [
+                          Text(AppLocalizations.of(context)!.myBookings, 
                             style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
                           SizedBox(height: 5),
-                          Text("Check your service schedule", 
+                          Text(AppLocalizations.of(context)!.checkServiceSchedule, 
                             style: TextStyle(color: Colors.black, fontSize: 12)),
                         ],
                       ),
@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Bookings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text(AppLocalizations.of(context)!.bookings, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   // TextButton(
                   //   onPressed: () {}, 
                   //   child: Text('View all',)
@@ -274,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Top Rated', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text(AppLocalizations.of(context)!.topRated, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   // TextButton(
                   //   onPressed: () {}, 
                   //   child: Text('View all',)
@@ -310,16 +310,16 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _contactIcon(Icons.phone, "Call", Colors.blue, 
+              _contactIcon(Icons.phone, AppLocalizations.of(context)!.phone, Colors.blue, 
                 () => _launchURL('tel:+123456789')),
               
-              _contactIcon(Icons.chat_bubble, "WhatsApp", Colors.green, 
+              _contactIcon(Icons.chat_bubble, AppLocalizations.of(context)!.whatsapp, Colors.green, 
                 () => _launchURL('https://wa.me/123456789')),
               
-              _contactIcon(Icons.email, "Email", Colors.redAccent, 
+              _contactIcon(Icons.email, AppLocalizations.of(context)!.email, Colors.redAccent, 
                 () => _launchURL('mailto:info@clean.com')),
               _contactIcon(
-                Icons.facebook, "Messenger", const Color(0xFF0084FF),
+                Icons.facebook, AppLocalizations.of(context)!.messenger, const Color(0xFF0084FF),
                 () => _launchURL('https://m.me/YOUR_PAGE_ID_OR_USERNAME'),
               ),
             ],

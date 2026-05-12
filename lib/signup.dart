@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -24,7 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
     if (_isLoading) return;
     
     if (!_isAccepted) {
-      _showErrorSnackBar("Please accept the Terms & Conditions");
+      _showErrorSnackBar(AppLocalizations.of(context)!.termsAndConditionsError);
       return;
     }
 
@@ -61,7 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
         Navigator.pop(context); // Close loading
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Account Created! You can now log in.")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.registrationSuccess)),
         );
         
         Navigator.pop(context); // Return to Login Page
@@ -73,7 +74,7 @@ class _SignUpPageState extends State<SignUpPage> {
       _showErrorSnackBar(error.message);
     } catch (e) {
       Navigator.pop(context);
-      _showErrorSnackBar("An error occurred during registration.");
+      _showErrorSnackBar(AppLocalizations.of(context)!.registrationError);
     }
   }
 
@@ -139,7 +140,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        const Center(child: Text("Register", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
+                        Center(child: Text(AppLocalizations.of(context)!.signUp, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
                         const SizedBox(height: 20),
                         
                         _label("Full Name"),
@@ -163,8 +164,8 @@ class _SignUpPageState extends State<SignUpPage> {
                               onChanged: (val) => setState(() => _isAccepted = val!),
                               activeColor: Colors.black,
                             ),
-                            const Expanded(
-                              child: Text("I agree to the Terms & Conditions", style: TextStyle(fontSize: 12)),
+                            Expanded(
+                              child: Text(AppLocalizations.of(context)!.termsAndConditions, style: TextStyle(fontSize: 12)),
                             ),
                           ],
                         ),
@@ -184,8 +185,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                 color: Colors.black,
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              child: const Center(
-                                child: Text("Sign Up", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                              child: Center(
+                                child: Text(AppLocalizations.of(context)!.signUp, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                               ),
                             ),
                           ),
@@ -197,10 +198,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text("Already have an account?"),
+                            Text(AppLocalizations.of(context)!.alreadyHaveAccount, style: TextStyle(fontSize: 12)),
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text("Log In", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                              child: Text(AppLocalizations.of(context)!.login_button, style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),

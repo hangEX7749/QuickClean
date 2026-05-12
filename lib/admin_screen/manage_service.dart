@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class AdminServicePage extends StatefulWidget {
   const AdminServicePage({super.key});
@@ -29,20 +30,20 @@ class _AdminServicePageState extends State<AdminServicePage> {
         _isLoading = false;
       });
     } catch (e) {
-      _showSnackBar("Error: $e", Colors.red);
+      _showSnackBar(AppLocalizations.of(context)!.errorFetchingServices, Colors.red);
     }
   }
 
   Future<void> _deleteService(String id) async {
     await supabase.from('services').delete().eq('id', id);
     _fetchServices();
-    _showSnackBar("Service deleted", Colors.black);
+    _showSnackBar(AppLocalizations.of(context)!.serviceDeleted, Colors.black);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Manage Services"), backgroundColor: Colors.white, foregroundColor: Colors.black),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.manageServices), backgroundColor: Colors.white, foregroundColor: Colors.black),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,
         onPressed: () => _showServiceDialog(),
@@ -92,17 +93,17 @@ class _AdminServicePageState extends State<AdminServicePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEditing ? "Edit Service" : "New Service"),
+        title: Text(isEditing ? AppLocalizations.of(context)!.editService : AppLocalizations.of(context)!.newService),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: "Service Name")),
-            TextField(controller: urlController, decoration: const InputDecoration(labelText: "Icon URL")),
-            TextField(controller: priceController, decoration: const InputDecoration(labelText: "Price"), keyboardType: TextInputType.number),
+            TextField(controller: nameController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.serviceName)),
+            TextField(controller: urlController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.iconURL)),
+            TextField(controller: priceController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.price), keyboardType: TextInputType.number),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
           ElevatedButton(
             onPressed: () async {
             try {
@@ -120,15 +121,15 @@ class _AdminServicePageState extends State<AdminServicePage> {
 
                 Navigator.pop(context);
                 _fetchServices();
-                _showSnackBar("Success!", Colors.green);
-              } on PostgrestException catch (error) {
+                _showSnackBar(AppLocalizations.of(context)!.serviceUpdated, Colors.green);
+              } on PostgrestException {
                 // This will catch Supabase-specific errors (like RLS or Schema errors)
-                _showSnackBar("Supabase Error: ${error.message}", Colors.red);
+                _showSnackBar(AppLocalizations.of(context)!.supabaseError, Colors.red);
               } catch (e) {
-                _showSnackBar("Unexpected Error: $e", Colors.red);
+                _showSnackBar(AppLocalizations.of(context)!.unexpectedError, Colors.red);
               }
             },
-            child: Text(isEditing ? "Save Changes" : "Add"),
+            child: Text(isEditing ? AppLocalizations.of(context)!.saveChanges : AppLocalizations.of(context)!.add),
           )
         ],
       ),

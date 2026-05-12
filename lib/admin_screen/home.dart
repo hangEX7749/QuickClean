@@ -6,7 +6,9 @@ import 'package:quick_clean/admin_screen/booking_list.dart';
 import 'package:quick_clean/admin_screen/manage_service.dart';
 import 'package:quick_clean/admin_screen/member_list.dart';
 import 'package:quick_clean/admin_screen/service_provider.dart';
+import 'package:quick_clean/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -46,7 +48,7 @@ class _AdminHomeState extends State<AdminHome> {
 
     final List<_AdminMenuItem> adminItems = [
       _AdminMenuItem(
-        title: "Manage Members",
+        title: AppLocalizations.of(context)!.manageMembers,
         icon: Icons.person,
         onTap: () {
           // Replace with your member management page
@@ -54,14 +56,14 @@ class _AdminHomeState extends State<AdminHome> {
         },
       ),
       _AdminMenuItem(
-        title: "Manage Service Providers",
+        title: AppLocalizations.of(context)!.manageServiceProviders,
         icon: Icons.people,
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceProvider()));
         },   // Replace with your service provider management page
       ),
       _AdminMenuItem(
-        title: "Manage Services",
+        title: AppLocalizations.of(context)!.manageServices,
         icon: Icons.build,
         onTap: () {
           // Replace with your service management page
@@ -69,7 +71,7 @@ class _AdminHomeState extends State<AdminHome> {
         },
       ),
       _AdminMenuItem(
-        title: "Manage Bookings",
+        title: AppLocalizations.of(context)!.manageBookings,
         icon: Icons.event_available,
         onTap: () {
           // Replace with your booking page
@@ -77,7 +79,7 @@ class _AdminHomeState extends State<AdminHome> {
         },
       ),
       _AdminMenuItem(
-        title: "Add New Admin",
+        title: AppLocalizations.of(context)!.addNewAdmin,
         icon: Icons.admin_panel_settings,
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => AdminList()));
@@ -87,26 +89,26 @@ class _AdminHomeState extends State<AdminHome> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Admin Panel", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context)!.adminPanel, style: TextStyle(fontWeight: FontWeight.bold)),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
+            tooltip: AppLocalizations.of(context)!.logout,
             onPressed: () async {
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text("Confirm Logout"),
-                  content: const Text("Are you sure you want to logout?"),
+                  title: Text(AppLocalizations.of(context)!.logout),
+                  content: Text(AppLocalizations.of(context)!.signOutConfirmation),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text("Cancel"),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text("Logout"),
+                      child: Text(AppLocalizations.of(context)!.logout),
                     ),
                   ],
                 ),
@@ -116,6 +118,39 @@ class _AdminHomeState extends State<AdminHome> {
                 await _logout(context);                
               }
             },
+          ),
+                   PopupMenuButton<Locale>(
+            // Use 'child' instead of 'icon' to combine Text and Icon
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.language, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context)!.changeLanguage, // Localize this!
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+            onSelected: (Locale locale) {
+              MyApp.setLocale(context, locale);
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: Locale('en'),
+                child: Text("English"),
+              ),
+              const PopupMenuItem(
+                value: Locale('zh'),
+                child: Text("中文"),
+              ),
+              const PopupMenuItem(
+                value: Locale('my'),
+                child: Text("Bahasa Melayu"),
+              ),
+            ],
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookingList extends StatefulWidget {
   const BookingList({super.key});
@@ -53,7 +54,7 @@ Future<void> _fetchBookings() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Bookings", style: TextStyle(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.manageBookings, style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
         bottom: TabBar(
@@ -61,11 +62,11 @@ Future<void> _fetchBookings() async {
           isScrollable: true,
           labelColor: Colors.black,
           indicatorColor: Colors.black,
-          tabs: const [
-            Tab(text: "Pending"),
-            Tab(text: "Confirmed"),
-            Tab(text: "Completed"),
-            Tab(text: "Cancelled"),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.pending),
+            Tab(text: AppLocalizations.of(context)!.confirmed),
+            Tab(text: AppLocalizations.of(context)!.completed),
+            Tab(text: AppLocalizations.of(context)!.cancelled),
           ],
         ),
       ),
@@ -87,7 +88,7 @@ Future<void> _fetchBookings() async {
     final filtered = _allBookings.where((b) => b['status'] == status).toList();
 
     if (filtered.isEmpty) {
-      return Center(child: Text("No $status bookings found."));
+      return Center(child: Text(AppLocalizations.of(context)!.noBookingsFound));
     }
 
     return ListView.builder(
@@ -110,10 +111,10 @@ Future<void> _fetchBookings() async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Text("Property Size: ${booking['property_size'] ?? 'N/A'}"),
-                    Text("Total Price: \$${booking['total_price'] ?? '0.00'}"),
+                    Text("${AppLocalizations.of(context)!.totalAmount}: \$${booking['total_price'] ?? '0.00'}"),
                     if (booking['notes'] != null) Text("Notes: ${booking['notes']}"),
                     const Divider(),
-                    const Text("Change Status:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(AppLocalizations.of(context)!.changeStatus, style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,

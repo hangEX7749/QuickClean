@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_clean/state/user_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -68,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
       };
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated successfully!")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdated), backgroundColor: Colors.green),
       );
 
       _handleRefresh();
@@ -76,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Update failed: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdateFailed), backgroundColor: Colors.red),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -90,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
       key: _refreshKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Profile Details", style: TextStyle(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.viewProfile, style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -109,8 +110,8 @@ class _ProfilePageState extends State<ProfilePage> {
             TextField(
               controller: _emailController,
               enabled: false,
-              decoration: const InputDecoration(
-                labelText: "Email Address",
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.email,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.email_outlined),
               ),
@@ -120,8 +121,8 @@ class _ProfilePageState extends State<ProfilePage> {
             // Name Field
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: "Full Name",
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.fullName,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person_outline),
               ),
@@ -137,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                 child: _isLoading 
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Save Changes", style: TextStyle(color: Colors.white)),
+                  : Text(AppLocalizations.of(context)!.save, style: TextStyle(color: Colors.white)),
               ),
             ),
             
@@ -146,8 +147,8 @@ class _ProfilePageState extends State<ProfilePage> {
             // Change Password Trigger
             ListTile(
               leading: const Icon(Icons.lock_outline, color: Colors.blue),
-              title: const Text("Change Password"),
-              subtitle: const Text("Update your account security"),
+              title: Text(AppLocalizations.of(context)!.changePassword),
+              subtitle: Text(AppLocalizations.of(context)!.updateAccountSecurity),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _showChangePasswordSheet(context),
             ),
@@ -155,8 +156,8 @@ class _ProfilePageState extends State<ProfilePage> {
             // Logout
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("Logout"),
-              subtitle: const Text("Sign out of your account"),
+              title: Text(AppLocalizations.of(context)!.logout),
+              subtitle: Text(AppLocalizations.of(context)!.signOutConfirmation),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () async {
                 _showLogoutDialog(context);
@@ -183,13 +184,13 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Change Password", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(AppLocalizations.of(context)!.changePassword, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             TextField(
               controller: passController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "New Password",
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.newPassword,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -209,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: const Text("Update Password", style: TextStyle(color: Colors.white)),
+                child: Text(AppLocalizations.of(context)!.updatePassword, style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -222,12 +223,12 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       builder: (innerContext) => AlertDialog( // renamed to innerContext for clarity
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to leave?"),
+        title: Text(AppLocalizations.of(context)!.logout),
+        content: Text(AppLocalizations.of(context)!.signOutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(innerContext), 
-            child: const Text("Cancel"),
+            child: Text(AppLocalizations.of(context)!.cancel, style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -236,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
               // Then call logout using the main page context
               _logout(context);
             }, 
-            child: const Text("Logout", style: TextStyle(color: Colors.red))
+            child: Text(AppLocalizations.of(context)!.logout, style: TextStyle(color: Colors.red))
           ),
         ],
       ),

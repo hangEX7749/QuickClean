@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class MemberEditPage extends StatefulWidget {
   final Map<String, dynamic> member;
@@ -35,13 +36,14 @@ class _MemberEditPageState extends State<MemberEditPage> {
           .eq('id', widget.member['id']);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Member updated successfully!")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.memberUpdated), backgroundColor: Colors.black),
       );
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Update failed: $e")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.supabaseError.replaceAll('\$e', e.toString())), backgroundColor: Colors.red),
       );
+ 
     } finally {
       setState(() => _isSaving = false);
     }
@@ -50,22 +52,22 @@ class _MemberEditPageState extends State<MemberEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Member")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.editMember)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: "Full Name", border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.fullName, border: OutlineInputBorder()),
             ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               value: _selectedRole,
-              decoration: const InputDecoration(labelText: "Account Role", border: OutlineInputBorder()),
-              items: const [
-                DropdownMenuItem(value: 'authenticated', child: Text("Member")),
-                DropdownMenuItem(value: 'admin', child: Text("Admin")),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.accountRole, border: OutlineInputBorder()),
+              items: [
+                DropdownMenuItem(value: 'authenticated', child: Text(AppLocalizations.of(context)!.member)),
+                DropdownMenuItem(value: 'admin', child: Text(AppLocalizations.of(context)!.admin)),
               ],
               onChanged: (val) => setState(() => _selectedRole = val!),
             ),
@@ -78,7 +80,7 @@ class _MemberEditPageState extends State<MemberEditPage> {
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                 child: _isSaving 
                   ? const CircularProgressIndicator(color: Colors.white) 
-                  : const Text("Save Changes", style: TextStyle(color: Colors.white)),
+                  : Text(AppLocalizations.of(context)!.saveChanges, style: TextStyle(color: Colors.white)),
               ),
             )
           ],

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddAdminPage extends StatefulWidget {
   const AddAdminPage({super.key});
@@ -48,14 +49,14 @@ class _AddAdminPageState extends State<AddAdminPage> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Admin account created successfully!")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.adminCreatedSuccessfully), backgroundColor: Colors.green),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       //print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminCreationFailed), backgroundColor: Colors.red),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -65,7 +66,7 @@ class _AddAdminPageState extends State<AddAdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add New Admin")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.addNewAdmin)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -74,21 +75,21 @@ class _AddAdminPageState extends State<AddAdminPage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: "Full Name", border: OutlineInputBorder()),
-                validator: (val) => val!.isEmpty ? "Enter a name" : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.fullName, border: OutlineInputBorder()),
+                validator: (val) => val!.isEmpty ? AppLocalizations.of(context)!.enterAName : null,
               ),
               const SizedBox(height: 15),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: "Email Address", border: OutlineInputBorder()),
-                validator: (val) => val!.isEmpty ? "Enter an email" : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.email, border: OutlineInputBorder()),
+                validator: (val) => val!.isEmpty ? AppLocalizations.of(context)!.enterAnEmail : null,
               ),
               const SizedBox(height: 15),
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: "Password", border: OutlineInputBorder()),
-                validator: (val) => val!.length < 6 ? "Minimum 6 characters" : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.passwordLabel, border: OutlineInputBorder()),
+                validator: (val) => val!.length < 6 ? AppLocalizations.of(context)!.passwordTooShort : null,
               ),
               const Spacer(),
               SizedBox(
@@ -99,7 +100,7 @@ class _AddAdminPageState extends State<AddAdminPage> {
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                   child: _isLoading 
                     ? const CircularProgressIndicator(color: Colors.white) 
-                    : const Text("Create Admin Account", style: TextStyle(color: Colors.white)),
+                    : Text(AppLocalizations.of(context)!.createAdminAccount, style: TextStyle(color: Colors.white)),
                 ),
               )
             ],

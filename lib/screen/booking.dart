@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_clean/models/service_models.dart';
 import 'package:quick_clean/screen/payment.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 
 class BookingPage extends StatefulWidget {
   final String serviceName;
@@ -76,7 +77,7 @@ class _BookingPageState extends State<BookingPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Book ${widget.serviceName}"),
+        title: Text("${AppLocalizations.of(context)!.book} ${widget.serviceName}"),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -87,7 +88,7 @@ class _BookingPageState extends State<BookingPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Select Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.selectDate, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               
               // Date Picker Trigger
@@ -119,7 +120,7 @@ class _BookingPageState extends State<BookingPage> {
               ),
         
               const SizedBox(height: 30),
-              const Text("Select Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.selectTime, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 15),
         
               // Time Slots Grid
@@ -144,12 +145,12 @@ class _BookingPageState extends State<BookingPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Select Specialist", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.selectSpecialist, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 160,
                     child: availableProviders.isEmpty 
-                      ? const Center(child: Text("No specialists available for this service"))
+                      ? Center(child: Text(AppLocalizations.of(context)!.noSpecialist))
                       : ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: availableProviders.length,
@@ -194,7 +195,7 @@ class _BookingPageState extends State<BookingPage> {
                 ],
               ),
               const SizedBox(height: 15),
-              const Text("Price", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.price, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 15),
         
               if (serviceDetails != null) 
@@ -243,7 +244,7 @@ class _BookingPageState extends State<BookingPage> {
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   ),
-                  child: const Text("Confirm Booking", 
+                  child: Text(AppLocalizations.of(context)!.confirmBooking, 
                     style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
@@ -256,7 +257,7 @@ class _BookingPageState extends State<BookingPage> {
 
   void _proceedToPayment() {
     if (selectedProviderId == null) {
-      _showSnackBar("Please select a specialist", Colors.orange);
+      _showSnackBar(AppLocalizations.of(context)!.selectSpecialist, Colors.orange);
       return;
     }
 

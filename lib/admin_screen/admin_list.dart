@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_clean/admin_screen/add_admin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AdminList extends StatefulWidget {
   const AdminList({super.key});
@@ -57,7 +58,7 @@ class _AdminListState extends State<AdminList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Admin", style: TextStyle(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.manageAdmin),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -78,7 +79,7 @@ class _AdminListState extends State<AdminList> {
               controller: _searchController,
               onChanged: _filterSearch,
               decoration: InputDecoration(
-                hintText: "Search by name or email...",
+                hintText: AppLocalizations.of(context)!.searchByNameOrEmail,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
@@ -92,7 +93,7 @@ class _AdminListState extends State<AdminList> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: Colors.black))
                 : _filteredMembers.isEmpty
-                    ? const Center(child: Text("No Admin found."))
+                    ? Center(child: Text(AppLocalizations.of(context)!.noAdminsFound))
                     : ListView.builder(
                         itemCount: _filteredMembers.length,
                         itemBuilder: (context, index) {

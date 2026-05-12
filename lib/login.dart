@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     // Basic email format validation
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value.trim())) {
-      return 'Please enter a valid email address';
+      return AppLocalizations.of(context)!.emailError;
     }
     
     return null;
@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
   // Password validator function
   String? _validatePassword(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Password is required';
+      return AppLocalizations.of(context)!.passwordError;
     }
     
     // if (value.length < 6) {
@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
       final user = res.user;
 
       if (user == null) {
-        throw Exception("Login failed");
+        throw Exception(Text(AppLocalizations.of(context)!.loginFailed).data!);
       }
 
       // ✅ Use user.id instead of email
@@ -96,8 +96,8 @@ class _LoginPageState extends State<LoginPage> {
         // If not member, show error and log out and return to login and prompt msg not exists
         await supabase.auth.signOut();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("No member account found with these credentials."),
+           SnackBar(
+            content: Text(AppLocalizations.of(context)!.accountNotExist),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -188,9 +188,9 @@ class _LoginPageState extends State<LoginPage> {
                   MyApp.setLocale(context, locale);
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(value: Locale('en'), child: Text("English")),
-                  const PopupMenuItem(value: Locale('zh'), child: Text("中文")),
-                  const PopupMenuItem(value: Locale('ms'), child: Text("Bahasa Melayu")),
+                  PopupMenuItem(value: Locale('en'), child: Text(Localizations.localeOf(context).languageCode == 'en' ? "English (Current)" : "English")),
+                  PopupMenuItem(value: Locale('zh'), child: Text(Localizations.localeOf(context).languageCode == 'zh' ? "中文 (Current)" : "中文")),
+                  PopupMenuItem(value: Locale('my'), child: Text(Localizations.localeOf(context).languageCode == 'ms' ? "Bahasa Melayu (Current)" : "Bahasa Melayu")),
                 ],
               ),
             ),
@@ -226,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            "Email",
+                            AppLocalizations.of(context)!.emailLabel, 
                           ),
                           const SizedBox(height: 5),
                           Container(
@@ -238,12 +238,12 @@ class _LoginPageState extends State<LoginPage> {
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               validator: _validateEmail,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: "Enter your email",
-                                prefixIcon: Icon(Icons.email_outlined),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                                errorStyle: TextStyle(
+                                hintText: Text(AppLocalizations.of(context)!.emailHint).data, // 'emailHint' must be in your .arb file
+                                prefixIcon: const Icon(Icons.email_outlined),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                                errorStyle: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.red,
                                   height: 1.5,
@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            "Password",
+                            AppLocalizations.of(context)!.passwordLabel,
                           ),
                           const SizedBox(height: 5),
                           Container(
@@ -265,12 +265,12 @@ class _LoginPageState extends State<LoginPage> {
                               obscureText: true,
                               controller: _passwordController,
                               validator: _validatePassword,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: "Enter your password",
-                                prefixIcon: Icon(Icons.password_outlined),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                                errorStyle: TextStyle(
+                                hintText: Text(AppLocalizations.of(context)!.passwordHint).data, // 'passwordHint' must be in your .arb file
+                                prefixIcon: const Icon(Icons.password_outlined),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                                errorStyle: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.red,
                                   height: 1.5,
@@ -283,8 +283,8 @@ class _LoginPageState extends State<LoginPage> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: _showForgotPasswordDialog,
-                              child: const Text(
-                                "Forgot Password?",
+                              child: Text(
+                                AppLocalizations.of(context)!.forgotPassword,
                                 style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -308,7 +308,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    "Log In",
+                                    AppLocalizations.of(context)!.login_button,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -324,7 +324,7 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Don't have an account?",
+                                AppLocalizations.of(context)!.dontHaveAccount,
                                 //style: AppWidget.simpleTextFieldStyle(),
                               ),
                               const SizedBox(width: 10),
@@ -338,7 +338,7 @@ class _LoginPageState extends State<LoginPage> {
                                   );
                                 },
                                 child: Text(
-                                  "SignUp",
+                                  AppLocalizations.of(context)!.signUp,
                                   style: TextStyle(
                                     color: Colors.blue,
                                     fontSize: 16,
@@ -357,8 +357,8 @@ class _LoginPageState extends State<LoginPage> {
                                   MaterialPageRoute(builder: (context) => AdminLoginPage()),
                                 );
                               },
-                              child: const Text(
-                                "Login as Admin",
+                              child: Text(
+                                 AppLocalizations.of(context)!.loginAsAdmin,
                                 style: TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold,
@@ -401,16 +401,16 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Reset Password"),
+        title: Text(AppLocalizations.of(context)!.resetPassword),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Enter your email address and we'll send you a link to reset your password."),
+            Text(AppLocalizations.of(context)!.forgotPasswordInstruction),
             const SizedBox(height: 15),
             TextField(
               controller: resetEmailController,
-              decoration: const InputDecoration(
-                labelText: "Email",
+              decoration: InputDecoration(
+                labelText: Text(AppLocalizations.of(context)!.emailLabel).data,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.email),
               ),
@@ -420,7 +420,7 @@ class _LoginPageState extends State<LoginPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -430,13 +430,13 @@ class _LoginPageState extends State<LoginPage> {
               try {
                 await supabase.auth.resetPasswordForEmail(email);
                 Navigator.pop(context); // Close dialog
-                _showSnackBar("Reset link sent! Check your email.", Colors.green);
+                _showSnackBar(AppLocalizations.of(context)!.resetLinkSent, Colors.green);
               } catch (e) {
                 _showSnackBar("Error: $e", Colors.red);
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-            child: const Text("Send Link", style: TextStyle(color: Colors.white)),
+            child: Text(AppLocalizations.of(context)!.sendLink, style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
