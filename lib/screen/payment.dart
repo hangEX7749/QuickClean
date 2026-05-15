@@ -19,27 +19,52 @@ class _PaymentPageState extends State<PaymentPage> {
   Future<void> _processPaymentAndBooking() async {
     setState(() => _isProcessing = true);
 
+    final List<dynamic> rawIds = widget.bookingData['provider_ids'] ?? [];
+    final List<String> providerIds = List<String>.from(rawIds);
+
+    if (providerIds.isEmpty) {
+      throw Exception("No specialists selected");
+    }
+
     // Mocking a payment delay
     await Future.delayed(const Duration(seconds: 2));
 
     try {
       final userId = supabase.auth.currentUser?.id;
-      
-      // Perform the ACTUAL insert here
-      await supabase.from('bookings').insert({
+      if (userId == null) throw Exception("User not logged in");
+
+      // 1. Insert the main Booking record
+      // Note: We removed 'provider_id' from this insert because it's now in a junction table
+      final bookingResponse = await supabase.from('bookings').insert({
         'user_id': userId,
         'service_type': widget.bookingData['service_type'],
         'booking_date': widget.bookingData['booking_date'],
         'booking_time': widget.bookingData['booking_time'],
         'total_price': widget.bookingData['total_price'],
-        'provider_id': widget.bookingData['provider_id'],
-        'status': 'pending', 
-      });
+        'status': 'pending',
+      }).select('id').single(); // We need the ID of the newly created booking
+
+      final String newBookingId = bookingResponse['id'];
+
+      // 2. Prepare the assignments for the junction table
+      final List<String> providerIds = List<String>.from(widget.bookingData['provider_ids']);
+      
+      final List<Map<String, dynamic>> assignmentData = providerIds.map((id) => {
+        'booking_id': newBookingId,
+        'provider_id': id,
+      }).toList();
+
+      // 3. Insert into the junction table (booking_assignments)
+      await supabase.from('booking_assignments').insert(assignmentData);
 
       _showSuccessDialog();
     } catch (e) {
+      debugPrint("Booking Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.bookingSaveError), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.bookingSaveError), 
+          backgroundColor: Colors.red
+        ),
       );
     } finally {
       setState(() => _isProcessing = false);
@@ -82,6 +107,11 @@ class _PaymentPageState extends State<PaymentPage> {
                       children: [
                         _summaryRow(AppLocalizations.of(context)!.service, "${widget.bookingData['service_type']}"),
                         const Divider(height: 30),
+                        _summaryRow(
+                          AppLocalizations.of(context)!.specialist, 
+                          "${(widget.bookingData['provider_ids'] as List? ?? []).length} ${AppLocalizations.of(context)!.selected}"
+                        ),
+                        const SizedBox(height: 10),
                         _summaryRow(AppLocalizations.of(context)!.date, "${widget.bookingData['booking_date']}"),
                         const SizedBox(height: 10),
                         _summaryRow(AppLocalizations.of(context)!.time, "${widget.bookingData['booking_time']}"),

@@ -18,23 +18,24 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
 
   final supabase = Supabase.instance.client;
-  String? selectedProviderId; // Track the chosen provider
+  List<String> selectedProviderIds = [];  // Track the chosen provider
   List<Map<String, dynamic>> availableProviders = [];
   Map<String, dynamic>? serviceDetails;
   DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
-  String selectedTime = "10:00 AM";
 
-  //Dump timeslot
-  final List<String> timeSlots = [
-    "10:00 AM", "11:00 AM", "12:00 PM",
-    "1:00 PM", "2:00 PM", "3:00 PM",
-    "4:00 PM", "5:00 PM"
-  ];
+  TimeOfDay selectedTime = const TimeOfDay(hour: 10, minute: 0);
+  double get totalPrice {
+    double basePrice = (serviceDetails?['price'] ?? 0).toDouble();
+    // Multiply by number of specialists, or 1 if none selected yet for preview
+    int multiplier = selectedProviderIds.isEmpty ? 1 : selectedProviderIds.length;
+    return basePrice * multiplier;
+  }
 
   @override
   void initState() {
     super.initState();
     _fetchProviders(widget.serviceName);
+    _fetchServiceDetails(); 
   }
 
   //fetch service details
@@ -119,27 +120,38 @@ class _BookingPageState extends State<BookingPage> {
                 ),
               ),
         
-              const SizedBox(height: 30),
-              Text(AppLocalizations.of(context)!.selectTime, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 15),
-        
+              const SizedBox(height: 30),        
               // Time Slots Grid
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: timeSlots.map((time) {
-                  bool isSelected = selectedTime == time;
-                  return ChoiceChip(
-                    label: Text(time),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() => selectedTime = time);
-                    },
-                    selectedColor: Colors.black,
-                    labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
-                    backgroundColor: Colors.grey.shade100,
+              Text(AppLocalizations.of(context)!.selectTime, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+
+              InkWell(
+                onTap: () async {
+                  final TimeOfDay? picked = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime,
                   );
-                }).toList(),
+                  if (picked != null) {
+                    setState(() => selectedTime = picked);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        selectedTime.format(context), // Displays time like "10:00 AM"
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const Icon(Icons.access_time, size: 20),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 15),
               Column(
@@ -156,10 +168,16 @@ class _BookingPageState extends State<BookingPage> {
                           itemCount: availableProviders.length,
                           itemBuilder: (context, index) {
                             final provider = availableProviders[index];
-                            bool isSelected = selectedProviderId == provider['id'];
+                            bool isSelected = selectedProviderIds.contains(provider['id']);
         
                             return GestureDetector(
-                              onTap: () => setState(() => selectedProviderId = provider['id']),
+                              onTap: () => setState(() {
+                                if (isSelected) {
+                                  selectedProviderIds.remove(provider['id']);
+                                } else {
+                                  selectedProviderIds.add(provider['id']);
+                                }
+                              }),
                               child: Container(
                                 width: 130,
                                 margin: const EdgeInsets.only(right: 15),
@@ -202,17 +220,14 @@ class _BookingPageState extends State<BookingPage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // inner space
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100, // background color
-                      borderRadius: BorderRadius.circular(8), // optional rounded corners
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      "${serviceDetails!['price']}",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      "\$${totalPrice.toStringAsFixed(2)}", 
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                   ),
                 )
@@ -256,7 +271,7 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   void _proceedToPayment() {
-    if (selectedProviderId == null) {
+    if (selectedProviderIds.isEmpty) {
       _showSnackBar(AppLocalizations.of(context)!.selectSpecialist, Colors.orange);
       return;
     }
@@ -269,9 +284,11 @@ class _BookingPageState extends State<BookingPage> {
           bookingData: {
             'service_type': widget.serviceName,
             'booking_date': selectedDate.toIso8601String().split('T')[0],
-            'booking_time': selectedTime,
-            'total_price': serviceDetails?['price'] ?? 0,
-            'provider_id': selectedProviderId,
+            'booking_time': selectedTime.format(context),
+            'total_price': totalPrice,
+            //'provider_id': selectedProviderIds,
+            'provider_ids': selectedProviderIds, 
+            'specialist_count': selectedProviderIds.length,
           },
         ),
       ),
