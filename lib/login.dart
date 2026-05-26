@@ -6,6 +6,7 @@ import 'package:quick_clean/reset_password.dart';
 import 'package:quick_clean/signup.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -110,6 +111,59 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       Navigator.pop(context);
       _showErrorSnackBar("Unexpected error: $e");
+    }
+
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _signInWithGoogle() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId: '938283211752-qb6njf4s497h999cm0rm8puqkljj3911.apps.googleusercontent.com', // ✅ Web Client ID only
+      );
+
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        Navigator.pop(context);
+        setState(() => _isLoading = false);
+        return; // user cancelled
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
+
+      if (idToken == null) throw Exception('No ID token from Google');
+
+      final res = await supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      final user = res.user;
+      if (user == null) throw Exception('Supabase sign-in failed');
+
+      Navigator.pop(context);
+      Navigator.pushReplacementNamed(context, '/member_home');
+
+    } on AuthException catch (error) {
+      Navigator.pop(context);
+      _showErrorSnackBar(error.message);
+            print(error);
+    } catch (e) {
+      Navigator.pop(context);
+      _showErrorSnackBar("Google sign-in error: $e");
+      print(e);
     }
 
     setState(() => _isLoading = false);
@@ -317,6 +371,38 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          const Row(
+                            children: [
+                              Expanded(child: Divider(thickness: 1)),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text("OR", style: TextStyle(color: Colors.grey)),
+                              ),
+                              Expanded(child: Divider(thickness: 1)),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          OutlinedButton(
+                            onPressed: _signInWithGoogle,
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 50),
+                              side: const BorderSide(color: Colors.grey),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Standard Google Icon asset representation
+                                Image.asset('images/google.png', height: 24), 
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Sign in with Google',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 30),

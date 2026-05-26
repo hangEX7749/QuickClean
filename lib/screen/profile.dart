@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_clean/state/user_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -246,14 +247,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _logout(BuildContext context) async {
     try {
-      // 1. Sign out from Supabase
+      // 1. Sign out from Google (add this)
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut();
+
+      // 2. Sign out from Supabase
       await Supabase.instance.client.auth.signOut();
 
-      // 2. Use rootNavigator to ensure we break out of any dialogs/overlays
-      if (!mounted) return; // Best practice: check if widget is still alive
-      
+      if (!mounted) return;
+
       Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-        '/', 
+        '/',
         (route) => false,
       );
     } catch (e) {

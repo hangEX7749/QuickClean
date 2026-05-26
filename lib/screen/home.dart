@@ -147,28 +147,46 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(15.0),
                           child: Image.network(
                             'https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb', 
-                            width: 70
-                          )
+                            width: 70,
+                            height: 70, // Added height to keep it square
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        SizedBox(width: 15,),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ValueListenableBuilder(
-                              valueListenable: currentUserData,
-                              builder: (context, userData, child) {
-                                return FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text("${AppLocalizations.of(context)!.hello}, ${userData?['username']}", style: TextStyle(fontSize: 20)),
-                                );
-                              },
-                            ),
-                            SizedBox(height: 5,),
-                            Text(userData?['email'] ?? '-', 
-                              style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 18),
-                            ),
-                          ],
-                        )
+                        const SizedBox(width: 15),
+                        
+                        // 1. Wrap the Column in an Expanded widget to constrain its width
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ValueListenableBuilder(
+                                valueListenable: currentUserData,
+                                builder: (context, userData, child) {
+                                  // Move the email Text inside the builder so it can safely read 'userData'
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          "${AppLocalizations.of(context)!.hello}, ${userData?['username'] ?? 'User'}", 
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        userData?['email'] ?? '-', 
+                                        style: TextStyle(color: Colors.black.withOpacity(0.7), fontSize: 18),
+                                        overflow: TextOverflow.ellipsis, // 2. Safely clip with dots if it's still too long
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 20,),
