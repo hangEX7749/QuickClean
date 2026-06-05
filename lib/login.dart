@@ -169,20 +169,53 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = false);
   }
 
+  Future<void> _signInWithFacebook() async {
+    try {
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        // We will configure this custom deep link in Step 2!
+        redirectTo: 'com.example.quickclean://login-callback', 
+      );
+    } catch (e) {
+      _showErrorSnackBar("Facebook Sign-In failed: $e");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
     // Listen for Auth changes, specifically for 'Password Recovery'
-    supabase.auth.onAuthStateChange.listen((data) {
+    supabase.auth.onAuthStateChange.listen((data) async {
       final AuthChangeEvent event = data.event;
-      
+      final Session? session = data.session;
+
       if (event == AuthChangeEvent.passwordRecovery) {
         // The user clicked the email link! Take them to the new password page.
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
         );
+      } else if (event == AuthChangeEvent.signedIn && session != null) {
+        final user = session.user;
+        
+        final userData = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        String? role = userData?['role'];
+
+        if (role == 'authenticated') {
+          // Use mounted check because this is async inside a listener
+          if (mounted) Navigator.pushReplacementNamed(context, '/member_home');
+        } else {
+          await supabase.auth.signOut();
+          if (mounted) {
+            _showErrorSnackBar(AppLocalizations.of(context)!.accountNotExist);
+          }
+        }
       }
     });
   }
@@ -400,6 +433,27 @@ class _LoginPageState extends State<LoginPage> {
                                 const SizedBox(width: 12),
                                 const Text(
                                   'Sign in with Google',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Place this right underneath your Google OutlinedButton inside the Column:
+                          const SizedBox(height: 10),
+                          OutlinedButton(
+                            onPressed: _signInWithFacebook,
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 50),
+                              side: const BorderSide(color: Colors.grey),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.facebook, color: Colors.blue[800], size: 24),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Sign in with Facebook',
                                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                               ],

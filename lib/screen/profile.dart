@@ -3,6 +3,7 @@ import 'package:quick_clean/state/user_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -253,6 +254,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
       // 2. Sign out from Supabase
       await Supabase.instance.client.auth.signOut();
+
+      // 3. Sign out from facebook 
+      await FacebookAuth.instance.logOut();
 
       if (!mounted) return;
 
