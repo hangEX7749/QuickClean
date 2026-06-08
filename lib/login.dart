@@ -54,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
 
 
   bool _isLoading = false;
+  bool _isPasswordObscured = true;
 
   Future<void> _signIn() async {
     if (_isLoading) return;
@@ -349,13 +350,29 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: TextFormField(
-                              obscureText: true,
+                              // 1. Link this to your dynamic state variable
+                              obscureText: _isPasswordObscured, 
                               controller: _passwordController,
                               validator: _validatePassword,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: Text(AppLocalizations.of(context)!.passwordHint).data, // 'passwordHint' must be in your .arb file
+                                hintText: Text(AppLocalizations.of(context)!.passwordHint).data, 
                                 prefixIcon: const Icon(Icons.password_outlined),
+                                
+                                // 2. Add the dynamic suffixIcon to toggle visibility
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isPasswordObscured 
+                                        ? Icons.visibility_off_outlined 
+                                        : Icons.visibility_outlined,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordObscured = !_isPasswordObscured;
+                                    });
+                                  },
+                                ),
+                                
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                                 errorStyle: const TextStyle(
                                   fontSize: 12,

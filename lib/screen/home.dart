@@ -329,16 +329,16 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _contactIcon(Icons.phone, AppLocalizations.of(context)!.phone, Colors.blue, 
-                () => _launchURL('tel:+123456789')),
+                () => _launchURL('tel:+6014-8459294')),
               
               _contactIcon(Icons.chat_bubble, AppLocalizations.of(context)!.whatsapp, Colors.green, 
-                () => _launchURL('https://wa.me/123456789')),
+                () => _launchURL('https://wa.me/60148459294')),
               
               _contactIcon(Icons.email, AppLocalizations.of(context)!.email, Colors.redAccent, 
-                () => _launchURL('mailto:info@clean.com')),
+                () => _launchURL('mailto:melissa.abfx@gmail.com')),
               _contactIcon(
                 Icons.facebook, AppLocalizations.of(context)!.messenger, const Color(0xFF0084FF),
-                () => _launchURL('https://m.me/YOUR_PAGE_ID_OR_USERNAME'),
+                () => _launchURL('https://www.facebook.com/share/1DAtMD8pPT'),
               ),
             ],
           ),
